@@ -25,7 +25,7 @@ from __future__ import annotations
 import math
 import re
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal, InvalidOperation
 from types import MappingProxyType
@@ -427,7 +427,7 @@ class TransactionOutcome:
     rule_codes: tuple[str, ...] = ()
     primary_rule_code: str | None = None
     survivor: SourceRef | None = None
-    values: Mapping[str, object] = MappingProxyType({})
+    values: Mapping[str, object] = field(default_factory=lambda: MappingProxyType({}))
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "values", MappingProxyType(dict(self.values)))

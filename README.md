@@ -145,7 +145,7 @@ Run the test suite with:
 pytest
 ```
 
-Current verified result: **307 passed**. Coverage includes ingestion,
+Current verified result: **308 passed**. Coverage includes ingestion,
 normalization, validation, deduplication, reference handling, audit completeness,
 output determinism, the end-to-end CLI, and comparison with the preregistered
 demo oracle.

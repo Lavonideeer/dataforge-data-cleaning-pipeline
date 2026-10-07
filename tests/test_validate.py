@@ -37,6 +37,7 @@ from dataforge.validate import (
     UNKNOWN_CUSTOMER_REFERENCE,
     UNKNOWN_PRODUCT_REFERENCE,
     Reconciliation,
+    TransactionOutcome,
     ValidationInvariantError,
     ValidationResult,
     hard_failures,
@@ -290,6 +291,14 @@ def test_identifier_failures_tie_break_by_frozen_field_order() -> None:
 # --------------------------------------------------------------------------- #
 # Cases A-J on purpose-built corpora (rules, not fixture rows)
 # --------------------------------------------------------------------------- #
+
+
+def test_transaction_outcome_default_values_are_read_only() -> None:
+    outcome = TransactionOutcome(SourceRef("sales.csv", "", 2), ACCEPTED)
+
+    assert dict(outcome.values) == {}
+    with pytest.raises(TypeError):
+        outcome.values["order_id"] = "ORD-1"  # type: ignore[index]
 
 
 def test_case_a_valid_row_is_accepted(tmp_path: Path) -> None:
