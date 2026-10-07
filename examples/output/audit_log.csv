@@ -1,0 +1,64 @@
+event_index,record_type,source_file,source_sheet,source_row,field_name,original_value,cleaned_value,code,action_type,related_source_file,related_source_sheet,related_source_row,message
+1,customers,customers.xlsx,customers,3,customer_name,  Bruno   Leroy  ,Bruno Leroy,NORMALIZE_WHITESPACE,NORMALIZATION,,,,Normalized customer_name using NORMALIZE_WHITESPACE.
+2,customers,customers.xlsx,customers,3,country,france,FR,NORMALIZE_COUNTRY,NORMALIZATION,,,,Normalized country using NORMALIZE_COUNTRY.
+3,customers,customers.xlsx,customers,4,country,FRA,FR,NORMALIZE_COUNTRY,NORMALIZATION,,,,Normalized country using NORMALIZE_COUNTRY.
+4,customers,customers.xlsx,customers,4,email, camille.roux@EXAMPLE.TEST ,camille.roux@example.test,NORMALIZE_EMAIL,NORMALIZATION,,,,Normalized email using NORMALIZE_EMAIL.
+5,customers,customers.xlsx,customers,5,email,nora.bernard.example.test,nora.bernard.example.test,INVALID_EMAIL_FORMAT,FLAG,,,,INVALID_EMAIL_FORMAT for email: email does not match the bounded syntax.
+6,customers,customers.xlsx,customers,7,country,Atlantis,Atlantis,UNKNOWN_COUNTRY,FLAG,,,,UNKNOWN_COUNTRY for country: country is outside the bounded alias map.
+7,customers,customers.xlsx,customers,21,,,,FUZZY_CUSTOMER_CANDIDATE,FLAG,customers.xlsx,customers,22,"Customer names 'C020' and 'C021' score 90.9091 at or above 90.0; evidence only, no merge."
+8,customers,customers.xlsx,customers,26,customer_id,,,MISSING_CUSTOMER_ID,VALIDATION_FAILURE,,,,Reference row excluded: customer_id is missing.
+9,customers,customers.xlsx,customers,27,,,,REFERENCE_DUPLICATE_EXACT,DEDUPLICATION,customers.xlsx,customers,11,Identical reference copy of 'C010'; the first source-order row is retained.
+10,products,products.csv,,2,category,Tech,ELECTRONICS,NORMALIZE_CATEGORY,NORMALIZATION,,,,Normalized category using NORMALIZE_CATEGORY.
+11,products,products.csv,,4,category,Home & Living,HOME,NORMALIZE_CATEGORY,NORMALIZATION,,,,Normalized category using NORMALIZE_CATEGORY.
+12,products,products.csv,,5,category,office supplies,OFFICE,NORMALIZE_CATEGORY,NORMALIZATION,,,,Normalized category using NORMALIZE_CATEGORY.
+13,products,products.csv,,6,category,Clothing,APPAREL,NORMALIZE_CATEGORY,NORMALIZATION,,,,Normalized category using NORMALIZE_CATEGORY.
+14,products,products.csv,,7,category,Gadgets,Gadgets,UNKNOWN_CATEGORY,FLAG,,,,UNKNOWN_CATEGORY for category: category is outside the bounded alias map.
+15,products,products.csv,,13,unit_price_eur,"1 299,00 EUR",1299.00,NORMALIZE_CURRENCY,NORMALIZATION,,,,Normalized unit_price_eur using NORMALIZE_CURRENCY.
+16,products,products.csv,,14,product_id,,,MISSING_PRODUCT_ID,VALIDATION_FAILURE,,,,Reference row excluded: product_id is missing.
+17,products,products.csv,,15,unit_price_eur,-3.00,,INVALID_UNIT_PRICE,VALIDATION_FAILURE,,,,Reference row excluded: unit_price_eur is negative (-3.00).
+18,products,products.csv,,16,,,,REFERENCE_DUPLICATE_EXACT,DEDUPLICATION,products.csv,,11,Identical reference copy of 'P010'; the first source-order row is retained.
+19,sales,sales_2026_07.csv,,3,order_id, ord-0002 ,ORD-0002,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized order_id using NORMALIZE_IDENTIFIER.
+20,sales,sales_2026_07.csv,,3,customer_id, c002 ,C002,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized customer_id using NORMALIZE_IDENTIFIER.
+21,sales,sales_2026_07.csv,,3,product_id,p012,P012,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized product_id using NORMALIZE_IDENTIFIER.
+22,sales,sales_2026_07.csv,,3,country, france ,FR,NORMALIZE_COUNTRY,NORMALIZATION,,,,Normalized country using NORMALIZE_COUNTRY.
+23,sales,sales_2026_07.csv,,3,unit_price_eur,"1 299,00 EUR",1299.00,NORMALIZE_CURRENCY,NORMALIZATION,,,,Normalized unit_price_eur using NORMALIZE_CURRENCY.
+24,sales,sales_2026_07.csv,,3,order_date,02/07/2026,2026-07-02,NORMALIZE_DATE,NORMALIZATION,,,,Normalized order_date using NORMALIZE_DATE.
+25,sales,sales_2026_07.csv,,4,quantity,0,,INVALID_QUANTITY,VALIDATION_FAILURE,,,,"quantity is missing, non-integer, or not greater than zero."
+26,sales,sales_2026_07.csv,,6,,,,DUPLICATE_KEY_CONFLICT,VALIDATION_FAILURE,,,,Conflicting business facts for 'ORD-0005'; every group member is quarantined.
+27,sales,sales_2026_07.csv,,7,quantity,-2,,INVALID_QUANTITY,VALIDATION_FAILURE,,,,"quantity is missing, non-integer, or not greater than zero."
+28,sales,sales_2026_07.csv,,9,customer_id,C999,,UNKNOWN_CUSTOMER_REFERENCE,REFERENCE_FAILURE,,,,customer_id 'C999' is absent from the usable customer reference.
+29,sales,sales_2026_07.csv,,10,product_id,P999,,UNKNOWN_PRODUCT_REFERENCE,REFERENCE_FAILURE,,,,product_id 'P999' is absent from the usable product reference.
+30,sales,sales_2026_07.csv,,13,order_date,31/02/2026,,INVALID_ORDER_DATE,VALIDATION_FAILURE,,,,"order_date is missing, unparseable, or impossible."
+31,sales,sales_2026_07.csv,,14,unit_price_eur,-5.00,,INVALID_UNIT_PRICE,VALIDATION_FAILURE,,,,unit_price_eur is negative (-5.00).
+32,sales,sales_2026_07.csv,,15,unit_price_eur,"1,299",,INVALID_UNIT_PRICE,VALIDATION_FAILURE,,,,"unit_price_eur is missing, malformed, ambiguous, or over-precise."
+33,sales,sales_2026_07.csv,,16,product_id,,,MISSING_PRODUCT_ID,VALIDATION_FAILURE,,,,product_id is missing.
+34,sales,sales_2026_07.csv,,18,country,France,FR,NORMALIZE_COUNTRY,NORMALIZATION,,,,Normalized country using NORMALIZE_COUNTRY.
+35,sales,sales_2026_07.csv,,19,country,france,FR,NORMALIZE_COUNTRY,NORMALIZATION,,,,Normalized country using NORMALIZE_COUNTRY.
+36,sales,sales_2026_07.csv,,21,country,FRA,FR,NORMALIZE_COUNTRY,NORMALIZATION,,,,Normalized country using NORMALIZE_COUNTRY.
+37,sales,sales_2026_07.csv,,22,country,Atlantis,Atlantis,UNKNOWN_COUNTRY,FLAG,,,,UNKNOWN_COUNTRY for country: country is outside the bounded alias map.
+38,sales,sales_2026_07.csv,,24,order_date,23/07/2026,2026-07-23,NORMALIZE_DATE,NORMALIZATION,,,,Normalized order_date using NORMALIZE_DATE.
+39,sales,sales_2026_07.csv,,25,order_date,24 July 2026,2026-07-24,NORMALIZE_DATE,NORMALIZATION,,,,Normalized order_date using NORMALIZE_DATE.
+40,sales,sales_2026_07.csv,,26,unit_price_eur,"1 299,00 EUR",1299.00,NORMALIZE_CURRENCY,NORMALIZATION,,,,Normalized unit_price_eur using NORMALIZE_CURRENCY.
+41,sales,sales_2026_07.csv,,27,unit_price_eur,"EUR1,299.00",1299.00,NORMALIZE_CURRENCY,NORMALIZATION,,,,Normalized unit_price_eur using NORMALIZE_CURRENCY.
+42,sales,sales_2026_07.csv,,28,unit_price_eur,1299,1299.00,NORMALIZE_CURRENCY,NORMALIZATION,,,,Normalized unit_price_eur using NORMALIZE_CURRENCY.
+43,sales,sales_2026_07.csv,,29,order_id, ord-0028 ,ORD-0028,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized order_id using NORMALIZE_IDENTIFIER.
+44,sales,sales_2026_07.csv,,29,customer_id, c008 ,C008,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized customer_id using NORMALIZE_IDENTIFIER.
+45,sales,sales_2026_07.csv,,29,product_id, p008 ,P008,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized product_id using NORMALIZE_IDENTIFIER.
+46,sales,sales_2026_07.csv,,30,order_id,,,MISSING_ORDER_ID,VALIDATION_FAILURE,,,,order_id is missing.
+47,sales,sales_2026_07.csv,,32,customer_id,BAD ID!,,INVALID_IDENTIFIER,VALIDATION_FAILURE,,,,customer_id violates the bounded identifier pattern.
+48,sales,sales_2026_07.csv,,33,quantity,2.5,,INVALID_QUANTITY,VALIDATION_FAILURE,,,,"quantity is missing, non-integer, or not greater than zero."
+49,sales,sales_2026_07.csv,,36,unit_price_eur,,,INVALID_UNIT_PRICE,VALIDATION_FAILURE,,,,"unit_price_eur is missing, malformed, ambiguous, or over-precise."
+50,sales,sales_2026_07.csv,,42,,,,DUPLICATE_EXACT,DEDUPLICATION,sales_2026_07.csv,,5,Identical transaction copy of 'ORD-0004'; the first source-order row is retained.
+51,sales,sales_2026_07.csv,,43,,,,DUPLICATE_KEY_CONFLICT,VALIDATION_FAILURE,,,,Conflicting business facts for 'ORD-0005'; every group member is quarantined.
+52,sales,sales_2026_07.csv,,45,order_id, ord-0030 ,ORD-0030,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized order_id using NORMALIZE_IDENTIFIER.
+53,sales,sales_2026_07.csv,,45,customer_id, c010 ,C010,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized customer_id using NORMALIZE_IDENTIFIER.
+54,sales,sales_2026_07.csv,,45,product_id,p012,P012,NORMALIZE_IDENTIFIER,NORMALIZATION,,,,Normalized product_id using NORMALIZE_IDENTIFIER.
+55,sales,sales_2026_07.csv,,45,country,France,FR,NORMALIZE_COUNTRY,NORMALIZATION,,,,Normalized country using NORMALIZE_COUNTRY.
+56,sales,sales_2026_07.csv,,45,unit_price_eur,"1 299,00 EUR",1299.00,NORMALIZE_CURRENCY,NORMALIZATION,,,,Normalized unit_price_eur using NORMALIZE_CURRENCY.
+57,sales,sales_2026_07.csv,,45,order_date,28/07/2026,2026-07-28,NORMALIZE_DATE,NORMALIZATION,,,,Normalized order_date using NORMALIZE_DATE.
+58,sales,sales_2026_07.csv,,45,,,,DUPLICATE_EXACT,DEDUPLICATION,sales_2026_07.csv,,31,Identical transaction copy of 'ORD-0030'; the first source-order row is retained.
+59,sales,sales_2026_10.xlsx,sales,2,order_date,2026-10-08,,FUTURE_ORDER_DATE,VALIDATION_FAILURE,,,,order_date is later than the frozen demo date 2026-10-07.
+60,sales,sales_2026_10.xlsx,sales,3,order_date,09/10/2026,2026-10-09,NORMALIZE_DATE,NORMALIZATION,,,,Normalized order_date using NORMALIZE_DATE.
+61,sales,sales_2026_10.xlsx,sales,3,customer_id,,,MISSING_CUSTOMER_ID,VALIDATION_FAILURE,,,,customer_id is missing.
+62,sales,sales_2026_10.xlsx,sales,3,order_date,2026-10-09,,FUTURE_ORDER_DATE,VALIDATION_FAILURE,,,,order_date is later than the frozen demo date 2026-10-07.
+63,sales,sales_2026_10.xlsx,sales,3,quantity,-3,,INVALID_QUANTITY,VALIDATION_FAILURE,,,,"quantity is missing, non-integer, or not greater than zero."

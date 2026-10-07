@@ -1,0 +1,117 @@
+{
+  "input_files": [
+    {
+      "path": "customers.xlsx",
+      "record_type": "customers",
+      "row_count": 26,
+      "selected_sheets": [
+        "customers"
+      ],
+      "sha256": "f66bc326d956269a1cb46bbe305b090a7f333be4d4555e1c5562cba86c1fb27c"
+    },
+    {
+      "path": "products.csv",
+      "record_type": "products",
+      "row_count": 15,
+      "selected_sheets": [],
+      "sha256": "4166dcb1437cd2d66ff420818a9201d0ef722f455ef007cdbe832bd2db147c86"
+    },
+    {
+      "path": "sales_2026_07.csv",
+      "record_type": "sales",
+      "row_count": 44,
+      "selected_sheets": [],
+      "sha256": "3b37ba5b96e9a7cfaf9f667291fa41708af07649748dae51a4bba388e79b21bc"
+    },
+    {
+      "path": "sales_2026_08.xlsx",
+      "record_type": "sales",
+      "row_count": 40,
+      "selected_sheets": [
+        "sales"
+      ],
+      "sha256": "50b5accb3636b587c04f138340034218386d3dc27eedeaac38bf4049ae8c32f7"
+    },
+    {
+      "path": "sales_2026_09.csv",
+      "record_type": "sales",
+      "row_count": 40,
+      "selected_sheets": [],
+      "sha256": "628437598f585e3047758d05a1d9766aca3ceb1d80d53e3c87b76aa41b19dec9"
+    },
+    {
+      "path": "sales_2026_10.xlsx",
+      "record_type": "sales",
+      "row_count": 40,
+      "selected_sheets": [
+        "sales"
+      ],
+      "sha256": "5e448bd8a8e2b611f209e31c97bffcc2ec14517f85d37618ecc94db136eb9994"
+    }
+  ],
+  "normalization_counts": {
+    "NORMALIZE_CATEGORY": 4,
+    "NORMALIZE_COUNTRY": 7,
+    "NORMALIZE_CURRENCY": 6,
+    "NORMALIZE_DATE": 5,
+    "NORMALIZE_EMAIL": 1,
+    "NORMALIZE_IDENTIFIER": 9,
+    "NORMALIZE_WHITESPACE": 1
+  },
+  "outputs": [
+    "cleaned_sales.xlsx",
+    "cleaned_sales.csv",
+    "rejected_rows.csv",
+    "audit_log.csv",
+    "cleaning_summary.json",
+    "data_quality_report.html"
+  ],
+  "reference_counts": {
+    "customers": {
+      "deduplicated": 1,
+      "input": 26,
+      "rejected": 1,
+      "valid": 24
+    },
+    "products": {
+      "deduplicated": 1,
+      "input": 15,
+      "rejected": 2,
+      "valid": 12
+    }
+  },
+  "rule_counts": {
+    "DUPLICATE_EXACT": 2,
+    "DUPLICATE_KEY_CONFLICT": 2,
+    "FUTURE_ORDER_DATE": 2,
+    "FUZZY_CUSTOMER_CANDIDATE": 1,
+    "INVALID_EMAIL_FORMAT": 1,
+    "INVALID_IDENTIFIER": 1,
+    "INVALID_ORDER_DATE": 1,
+    "INVALID_QUANTITY": 4,
+    "INVALID_UNIT_PRICE": 4,
+    "MISSING_CUSTOMER_ID": 2,
+    "MISSING_ORDER_ID": 1,
+    "MISSING_PRODUCT_ID": 2,
+    "REFERENCE_DUPLICATE_EXACT": 2,
+    "UNKNOWN_CATEGORY": 1,
+    "UNKNOWN_COUNTRY": 2,
+    "UNKNOWN_CUSTOMER_REFERENCE": 1,
+    "UNKNOWN_PRODUCT_REFERENCE": 1
+  },
+  "run_metadata": {
+    "demo_date": "2026-10-07",
+    "demo_seed": 1007,
+    "pipeline_version": "1.0.0",
+    "source_ordering": "nfc_relative_path_then_sheet_then_row",
+    "timezone": "Europe/Paris"
+  },
+  "specification_version": "1.0.1",
+  "transaction_counts": {
+    "accepted": 146,
+    "deduplicated": 2,
+    "input": 164,
+    "quarantined": 16,
+    "reconciled": true
+  }
+}

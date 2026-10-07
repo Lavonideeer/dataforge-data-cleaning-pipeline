@@ -1,0 +1,24 @@
+record_type,source_file,source_sheet,source_row,terminal_disposition,primary_rule_code,rule_codes,reason,order_id,customer_id,product_id,order_date,quantity,unit_price_eur,country,customer_name,email,product_name,category
+customers,customers.xlsx,customers,26,REFERENCE_REJECTED,MISSING_CUSTOMER_ID,MISSING_CUSTOMER_ID,Reference row excluded: customer_id is missing.,,,,,,,FR,Synthetic Missing ID,missing.id@example.test,,
+customers,customers.xlsx,customers,27,REFERENCE_DEDUPLICATED,REFERENCE_DUPLICATE_EXACT,REFERENCE_DUPLICATE_EXACT,Identical reference copy of 'C010'; the first source-order row is retained.,,C010,,,,,FR,Ines Mercier,ines.mercier@example.test,,
+products,products.csv,,14,REFERENCE_REJECTED,MISSING_PRODUCT_ID,MISSING_PRODUCT_ID,Reference row excluded: product_id is missing.,,,,,,10.00,,,,Synthetic Missing SKU,OFFICE
+products,products.csv,,15,REFERENCE_REJECTED,INVALID_UNIT_PRICE,INVALID_UNIT_PRICE,Reference row excluded: unit_price_eur is negative (-3.00).,,,P013,,,-3.00,,,,Synthetic Invalid Price,OFFICE
+products,products.csv,,16,REFERENCE_DEDUPLICATED,REFERENCE_DUPLICATE_EXACT,REFERENCE_DUPLICATE_EXACT,Identical reference copy of 'P010'; the first source-order row is retained.,,,P010,,,79.99,,,,Headphones,ELECTRONICS
+sales,sales_2026_07.csv,,4,QUARANTINED,INVALID_QUANTITY,INVALID_QUANTITY,"quantity is missing, non-integer, or not greater than zero.",ORD-0003,C003,P003,2026-07-03,0,39.50,FR,,,,
+sales,sales_2026_07.csv,,6,QUARANTINED,DUPLICATE_KEY_CONFLICT,DUPLICATE_KEY_CONFLICT,Conflicting business facts for 'ORD-0005'; every group member is quarantined.,ORD-0005,C005,P005,2026-07-05,2,24.99,FR,,,,
+sales,sales_2026_07.csv,,7,QUARANTINED,INVALID_QUANTITY,INVALID_QUANTITY,"quantity is missing, non-integer, or not greater than zero.",ORD-0006,C006,P006,2026-07-06,-2,299.00,FR,,,,
+sales,sales_2026_07.csv,,9,QUARANTINED,UNKNOWN_CUSTOMER_REFERENCE,UNKNOWN_CUSTOMER_REFERENCE,customer_id 'C999' is absent from the usable customer reference.,ORD-0008,C999,P011,2026-07-02,3,129.90,FR,,,,
+sales,sales_2026_07.csv,,10,QUARANTINED,UNKNOWN_PRODUCT_REFERENCE,UNKNOWN_PRODUCT_REFERENCE,product_id 'P999' is absent from the usable product reference.,ORD-0009,C023,P999,2026-07-14,3,129.90,FR,,,,
+sales,sales_2026_07.csv,,13,QUARANTINED,INVALID_ORDER_DATE,INVALID_ORDER_DATE,"order_date is missing, unparseable, or impossible.",ORD-0012,C008,P001,31/02/2026,5,49.90,FR,,,,
+sales,sales_2026_07.csv,,14,QUARANTINED,INVALID_UNIT_PRICE,INVALID_UNIT_PRICE,unit_price_eur is negative (-5.00).,ORD-0013,C015,P002,2026-07-15,4,-5.00,FR,,,,
+sales,sales_2026_07.csv,,15,QUARANTINED,INVALID_UNIT_PRICE,INVALID_UNIT_PRICE,"unit_price_eur is missing, malformed, ambiguous, or over-precise.",ORD-0014,C010,P007,2026-07-09,1,"1,299",FR,,,,
+sales,sales_2026_07.csv,,16,QUARANTINED,MISSING_PRODUCT_ID,MISSING_PRODUCT_ID,product_id is missing.,ORD-0015,C013,,2026-07-28,4,24.99,FR,,,,
+sales,sales_2026_07.csv,,30,QUARANTINED,MISSING_ORDER_ID,MISSING_ORDER_ID,order_id is missing.,,C010,P011,2026-07-19,2,129.90,FR,,,,
+sales,sales_2026_07.csv,,32,QUARANTINED,INVALID_IDENTIFIER,INVALID_IDENTIFIER,customer_id violates the bounded identifier pattern.,ORD-0031,BAD ID!,P005,2026-07-11,5,24.99,FR,,,,
+sales,sales_2026_07.csv,,33,QUARANTINED,INVALID_QUANTITY,INVALID_QUANTITY,"quantity is missing, non-integer, or not greater than zero.",ORD-0032,C016,P011,2026-07-06,2.5,129.90,FR,,,,
+sales,sales_2026_07.csv,,36,QUARANTINED,INVALID_UNIT_PRICE,INVALID_UNIT_PRICE,"unit_price_eur is missing, malformed, ambiguous, or over-precise.",ORD-0035,C016,P008,2026-07-09,1,,FR,,,,
+sales,sales_2026_07.csv,,42,DEDUPLICATED,DUPLICATE_EXACT,DUPLICATE_EXACT,Identical transaction copy of 'ORD-0004'; the first source-order row is retained.,ORD-0004,C004,P004,2026-07-04,1,12.00,FR,,,,
+sales,sales_2026_07.csv,,43,QUARANTINED,DUPLICATE_KEY_CONFLICT,DUPLICATE_KEY_CONFLICT,Conflicting business facts for 'ORD-0005'; every group member is quarantined.,ORD-0005,C005,P005,2026-07-05,3,24.99,FR,,,,
+sales,sales_2026_07.csv,,45,DEDUPLICATED,DUPLICATE_EXACT,DUPLICATE_EXACT,Identical transaction copy of 'ORD-0030'; the first source-order row is retained., ord-0030 , c010 ,p012,28/07/2026,1,"1 299,00 EUR",France,,,,
+sales,sales_2026_10.xlsx,sales,2,QUARANTINED,FUTURE_ORDER_DATE,FUTURE_ORDER_DATE,order_date is later than the frozen demo date 2026-10-07.,ORD-0121,C011,P011,2026-10-08,1,129.90,FR,,,,
+sales,sales_2026_10.xlsx,sales,3,QUARANTINED,MISSING_CUSTOMER_ID,MISSING_CUSTOMER_ID|FUTURE_ORDER_DATE|INVALID_QUANTITY,"customer_id is missing.; order_date is later than the frozen demo date 2026-10-07.; quantity is missing, non-integer, or not greater than zero.",ORD-0122,,P012,09/10/2026,-3,1299.00,FR,,,,

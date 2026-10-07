@@ -112,6 +112,7 @@ def build_report_html(
     summary: Mapping[str, object],
     rejected_rows: Sequence[RejectedRow],
     input_files: Sequence[Mapping[str, object]],
+    full_pipeline: bool = False,
 ) -> str:
     """Render the appendix 8.6 report sections in their frozen order."""
 
@@ -305,7 +306,7 @@ def build_report_html(
     parts.append("<ul>")
     for name in outputs:
         text = str(name)
-        if text.startswith("cleaned_sales"):
+        if text.startswith("cleaned_sales") and not full_pipeline:
             parts.append(
                 f"<li><code>{_esc(text)}</code> &mdash; DF-006 final cleaned-data "
                 "deliverable, not produced by this phase.</li>"
@@ -313,11 +314,17 @@ def build_report_html(
         else:
             parts.append(f"<li><a href=\"{_esc(text)}\"><code>{_esc(text)}</code></a></li>")
     parts.append("</ul>")
-    parts.append(
-        "<p><code>cleaned_sales.csv</code> and <code>cleaned_sales.xlsx</code> are "
-        "part of the frozen v1 deliverable contract but are written only by DF-006. "
-        "They do not exist yet, and this phase makes no claim that they do.</p>"
-    )
+    if full_pipeline:
+        parts.append(
+            "<p>All six frozen v1 artifacts were generated and verified by the "
+            "completed DataForge pipeline.</p>"
+        )
+    else:
+        parts.append(
+            "<p><code>cleaned_sales.csv</code> and <code>cleaned_sales.xlsx</code> are "
+            "part of the frozen v1 deliverable contract but are written only by DF-006. "
+            "They do not exist yet, and this phase makes no claim that they do.</p>"
+        )
 
     # 9. Bounded-demo limitations and v1 non-goals.
     parts.append("<h2>8. Limitations and non-goals</h2>")
@@ -385,6 +392,7 @@ def write_evidence_outputs(
     *,
     ingestion: IngestionResult,
     input_dir: str | Path,
+    full_pipeline: bool = False,
 ) -> EvidenceOutputs:
     """Write the four authorized DF-005 artifacts and nothing else.
 
@@ -411,6 +419,7 @@ def write_evidence_outputs(
         summary=summary,
         rejected_rows=rejected_rows,
         input_files=input_files,
+        full_pipeline=full_pipeline,
     )
 
     rejected_path = write_rejected_rows(directory / "rejected_rows.csv", rejected_rows)

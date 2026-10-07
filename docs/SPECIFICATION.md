@@ -13,7 +13,7 @@
 | Specification version | v1.0 plus adopted v1.0.1 normative clarification |
 | PDF pages reviewed | 6 of 6 |
 | Bootstrap date | 2026-10-07 |
-| Current authorized phase | DF-005 audit, summary, and quality reporting only |
+| Current authorized phase | DF-006 end-to-end pipeline and client deliverables only |
 | DF-000 decision | PASS after adopted clarification and closure review |
 | Appendix status | ADOPTED on 2026-10-07 |
 | DF-000R source commit | `389c7a3` |
@@ -22,6 +22,7 @@
 | DF-003 boundary | Canonical recoverable values plus deterministic normalization events/issues; no terminal disposition |
 | DF-004 boundary | Hard validation, duplicate resolution, reference validation, and internal terminal-disposition evidence; no client-facing artifact |
 | DF-005 boundary | Evidence serialization and reporting only: `rejected_rows.csv`, `audit_log.csv`, `cleaning_summary.json`, `data_quality_report.html`; no cleaned-sales output and no business decision |
+| DF-006 boundary | Compose DF-002 through DF-005, serialize accepted sales to canonical CSV/XLSX, verify and publish the frozen six-artifact contract, and expose the bounded CLI |
 
 ## Authority model
 

@@ -8,7 +8,7 @@ reconciliation, and a machine-readable audit trail.
 
 ## Current status
 
-**DF-005 - audit, summary, and quality report: implemented**
+**DF-006 - end-to-end pipeline and client deliverables: implemented**
 
 The authoritative v1.0 PDF has been recovered and recorded in
 [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). The Owner-adopted deterministic
@@ -20,8 +20,9 @@ DF-002 provides bounded CSV/XLSX ingestion plus structural schema checks, and
 DF-003 converts recoverable representations to canonical values. DF-004 applies
 the frozen hard business rules, duplicate resolution, and reference validation.
 DF-005 serializes that evidence into the client-facing audit, summary, and
-quality artifacts. No DF-006 through DF-008 implementation has been performed or
-authorized.
+quality artifacts. DF-006 composes those stages into the public CLI and publishes
+the complete six-file client delivery. No DF-007 or DF-008 work has been
+performed.
 
 ## Authority
 
@@ -33,15 +34,28 @@ authorized.
 The PDF defines the original v1 scope. The adopted appendix governs the five
 deterministic details it clarifies. Neither authorizes scope expansion.
 
-## Intended public command
-
-The frozen specification reserves this interface for DF-006:
+## Run the complete demo
 
 ```bash
 python -m dataforge.cli --input data/demo_raw --output examples/output
 ```
 
-It remains reserved for the DF-006 CLI phase and is not implemented by DF-005.
+The command exits nonzero for unsafe paths or structural input failures. A
+successful run reports reconciliation and writes exactly these DataForge
+artifacts while leaving unrelated output-directory files untouched:
+
+- `cleaned_sales.xlsx` - one `cleaned_sales` worksheet with typed dates, numeric
+  money, a frozen header row, and an autofilter;
+- `cleaned_sales.csv` - the same accepted transactions in deterministic source
+  order;
+- `rejected_rows.csv` - non-accepted transaction and reference evidence;
+- `audit_log.csv` - material transformations, failures, deduplication, and flags;
+- `cleaning_summary.json` - frozen metadata, counts, reconciliation, and outputs;
+- `data_quality_report.html` - client-readable quality and safeguard report.
+
+For the frozen corpus, the pipeline derives 164 input transactions, 146 accepted,
+16 quarantined, and 2 deduplicated. The cleaned files contain the 146 accepted
+rows plus their header.
 
 ## Synthetic demo data
 
@@ -145,8 +159,22 @@ disposition, and writes exactly four artifacts:
 Every audit row traces back to exactly one upstream evidence object, and the
 reporting modules expose no parser, resolver, or rule engine. All four artifacts
 are byte-deterministic and contain no timestamp, hostname, or absolute path.
-`cleaned_sales.csv` and `cleaned_sales.xlsx` remain DF-006 deliverables and are
-named as such; DF-005 does not create them.
+DF-006 invokes this evidence layer with completed-pipeline context so the final
+HTML truthfully links all six generated artifacts without changing evidence
+semantics.
+
+## End-to-end delivery boundary
+
+DF-006 calls DF-002 ingestion, DF-003 normalization, DF-004 validation, and
+DF-005 evidence writing through their committed interfaces. It does not duplicate
+their rules. Only DF-004 `ACCEPTED` outcomes enter `cleaned_sales.*`; the pipeline
+asserts accepted-row identity and G2 reconciliation before publishing.
+
+The six artifacts are generated in a staging directory, reopened and checked,
+then published by known filename. Existing known outputs are restored if
+publication fails, and foreign files are never deleted. CSV and evidence outputs
+are byte-deterministic. XLSX is verified semantically because ZIP container bytes
+may vary while sheet names, headers, types, values, and ordering remain identical.
 
 ## Repository layout
 
@@ -173,14 +201,7 @@ The runtime currently uses:
 - `openpyxl` for XLSX fixture generation and bounded ingestion;
 - `rapidfuzz` for the frozen section 5.7 evidence-only customer-name comparison.
 
-Later phases may add only their planned minimum dependencies:
-
-- `pandas` only if later tabular transformation genuinely requires it;
-- one schema library, selected only after the schema is frozen (`pandera` is the
-  leading candidate; do not add both Pandera and Pydantic without justification);
-- `pytest` as the development test runner.
-
-Dependencies enter the project only in the phase that needs them.
+The development dependency is `pytest`. DF-006 adds no runtime dependency.
 
 ## Scope guard
 

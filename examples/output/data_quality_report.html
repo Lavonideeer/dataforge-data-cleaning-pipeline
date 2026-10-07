@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DataForge data quality report</title>
+<style>
+body { font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+       margin: 2rem auto; max-width: 60rem; padding: 0 1rem; color: #1c1c1c;
+       line-height: 1.5; }
+h1 { font-size: 1.6rem; margin-bottom: 0.25rem; }
+h2 { font-size: 1.15rem; margin-top: 2rem; border-bottom: 1px solid #d8d8d8;
+     padding-bottom: 0.25rem; }
+table.data { border-collapse: collapse; margin: 0.75rem 0; width: 100%; }
+table.data th, table.data td { border: 1px solid #d8d8d8; padding: 0.35rem 0.6rem;
+     text-align: left; vertical-align: top; }
+table.data th { background: #f4f4f4; font-weight: 600; }
+table.data td.num { text-align: right; }
+p.meta { color: #555; margin-top: 0; }
+p.equation { font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+     background: #f4f4f4; padding: 0.5rem 0.75rem; }
+p.result { font-weight: 700; }
+p.result.pass { color: #146c2e; }
+p.result.fail { color: #a11212; }
+ul { padding-left: 1.25rem; }
+code { background: #f4f4f4; padding: 0 0.2rem; }
+</style>
+</head>
+<body>
+<h1>DataForge data quality report</h1>
+<p class="meta">Specification version 1.0.1 &middot; frozen demo date 2026-10-07 (Europe/Paris) &middot; pipeline version 1.0.0 &middot; demo seed 1007</p>
+<p>This report explains what DataForge changed, rejected, and deduplicated for a bounded synthetic demo corpus, and where every record came from. It reports decisions; it does not make them.</p>
+<h2>1. Processed inputs</h2>
+<table class="data">
+<thead><tr>
+<th>Input file</th>
+<th>Record type</th>
+<th>Data rows</th>
+<th>Selected sheets</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>customers.xlsx</td>
+<td>customers</td>
+<td>26</td>
+<td>customers</td>
+</tr>
+<tr>
+<td>products.csv</td>
+<td>products</td>
+<td>15</td>
+<td>(none)</td>
+</tr>
+<tr>
+<td>sales_2026_07.csv</td>
+<td>sales</td>
+<td>44</td>
+<td>(none)</td>
+</tr>
+<tr>
+<td>sales_2026_08.xlsx</td>
+<td>sales</td>
+<td>40</td>
+<td>sales</td>
+</tr>
+<tr>
+<td>sales_2026_09.csv</td>
+<td>sales</td>
+<td>40</td>
+<td>(none)</td>
+</tr>
+<tr>
+<td>sales_2026_10.xlsx</td>
+<td>sales</td>
+<td>40</td>
+<td>sales</td>
+</tr>
+</tbody></table>
+<p>Transaction input rows: <strong>164</strong>. Customer reference input rows: <strong>26</strong>. Product reference input rows: <strong>15</strong>. Reference rows validate foreign keys only and are never merged into transaction rows.</p>
+<h2>2. Transaction dispositions</h2>
+<table class="data">
+<thead><tr>
+<th>Disposition</th>
+<th>Rows</th>
+<th>Share of input</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Input</td>
+<td>164</td>
+<td>100.0%</td>
+</tr>
+<tr>
+<td>Accepted</td>
+<td>146</td>
+<td>89.0%</td>
+</tr>
+<tr>
+<td>Quarantined</td>
+<td>16</td>
+<td>9.8%</td>
+</tr>
+<tr>
+<td>Deduplicated</td>
+<td>2</td>
+<td>1.2%</td>
+</tr>
+</tbody></table>
+<p>Every ingested transaction row received exactly one of these terminal dispositions. Shares are display-only ratios of the counts above over the input row count; no other quality score is defined for this demo.</p>
+<p>The non-accepted evidence file <code>rejected_rows.csv</code> holds <strong>23</strong> data rows: <strong>16</strong> quarantined transactions, <strong>2</strong> deduplicated transactions, <strong>3</strong> rejected customer/product references, and <strong>2</strong> deduplicated references. Reference rows are outside the transaction reconciliation below; the larger evidence count does not widen the transaction equation.</p>
+<h2>3. Reconciliation</h2>
+<p class="equation">164 input rows = 146 accepted + 16 quarantined + 2 deduplicated</p>
+<p class="result pass">Reconciliation: PASS</p>
+<p>Transaction reconciliation counts source rows exactly once. Rows with several failures still count once, and reference rows are excluded (5 reference rows appear in <code>rejected_rows.csv</code> but not in this equation).</p>
+<h2>4. Defect and normalization counts</h2>
+<p>Audit events by defect or action code.</p>
+<table class="data">
+<thead><tr>
+<th>Rule code</th>
+<th>Audit events</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>DUPLICATE_EXACT</td>
+<td>2</td>
+</tr>
+<tr>
+<td>DUPLICATE_KEY_CONFLICT</td>
+<td>2</td>
+</tr>
+<tr>
+<td>FUTURE_ORDER_DATE</td>
+<td>2</td>
+</tr>
+<tr>
+<td>FUZZY_CUSTOMER_CANDIDATE</td>
+<td>1</td>
+</tr>
+<tr>
+<td>INVALID_EMAIL_FORMAT</td>
+<td>1</td>
+</tr>
+<tr>
+<td>INVALID_IDENTIFIER</td>
+<td>1</td>
+</tr>
+<tr>
+<td>INVALID_ORDER_DATE</td>
+<td>1</td>
+</tr>
+<tr>
+<td>INVALID_QUANTITY</td>
+<td>4</td>
+</tr>
+<tr>
+<td>INVALID_UNIT_PRICE</td>
+<td>4</td>
+</tr>
+<tr>
+<td>MISSING_CUSTOMER_ID</td>
+<td>2</td>
+</tr>
+<tr>
+<td>MISSING_ORDER_ID</td>
+<td>1</td>
+</tr>
+<tr>
+<td>MISSING_PRODUCT_ID</td>
+<td>2</td>
+</tr>
+<tr>
+<td>REFERENCE_DUPLICATE_EXACT</td>
+<td>2</td>
+</tr>
+<tr>
+<td>UNKNOWN_CATEGORY</td>
+<td>1</td>
+</tr>
+<tr>
+<td>UNKNOWN_COUNTRY</td>
+<td>2</td>
+</tr>
+<tr>
+<td>UNKNOWN_CUSTOMER_REFERENCE</td>
+<td>1</td>
+</tr>
+<tr>
+<td>UNKNOWN_PRODUCT_REFERENCE</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p>Audit events by normalization code.</p>
+<table class="data">
+<thead><tr>
+<th>Rule code</th>
+<th>Audit events</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>NORMALIZE_CATEGORY</td>
+<td>4</td>
+</tr>
+<tr>
+<td>NORMALIZE_COUNTRY</td>
+<td>7</td>
+</tr>
+<tr>
+<td>NORMALIZE_CURRENCY</td>
+<td>6</td>
+</tr>
+<tr>
+<td>NORMALIZE_DATE</td>
+<td>5</td>
+</tr>
+<tr>
+<td>NORMALIZE_EMAIL</td>
+<td>1</td>
+</tr>
+<tr>
+<td>NORMALIZE_IDENTIFIER</td>
+<td>9</td>
+</tr>
+<tr>
+<td>NORMALIZE_WHITESPACE</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<h2>5. Reference data quality</h2>
+<table class="data">
+<thead><tr>
+<th>Reference table</th>
+<th>Input</th>
+<th>Usable</th>
+<th>Rejected</th>
+<th>Deduplicated</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>customers</td>
+<td>26</td>
+<td>24</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>products</td>
+<td>15</td>
+<td>12</td>
+<td>2</td>
+<td>1</td>
+</tr>
+</tbody></table>
+<p>Each reference table obeys input = usable + rejected + deduplicated. Near-duplicate customer name candidates flagged in evidence: <strong>1</strong>. A fuzzy candidate is evidence only: customer identities are never merged and sales customer identifiers are never rewritten.</p>
+<h2>6. Safeguards</h2>
+<ul>
+<li><strong>Provenance</strong>: every record keeps its source file, source sheet, and source row, so any output row can be traced back to the exact cell range it came from.</li>
+<li><strong>Quarantine</strong>: rows that break a frozen business rule are separated, never silently corrected, and always carry a stable rule code plus a readable reason.</li>
+<li><strong>Audit trail</strong>: every material normalization, rejection, deduplication, reference failure, and flag produces a machine-readable <code>audit_log.csv</code> event with original and cleaned values.</li>
+<li><strong>No silent deletion</strong>: every ingested transaction row reconciles exactly once, and a deduplicated row remains explainable through the survivor it points to.</li>
+<li><strong>Deterministic</strong>: identical inputs always produce byte-identical evidence; no timestamps or run identifiers are recorded.</li>
+</ul>
+<h2>7. Output artifacts</h2>
+<ul>
+<li><a href="cleaned_sales.xlsx"><code>cleaned_sales.xlsx</code></a></li>
+<li><a href="cleaned_sales.csv"><code>cleaned_sales.csv</code></a></li>
+<li><a href="rejected_rows.csv"><code>rejected_rows.csv</code></a></li>
+<li><a href="audit_log.csv"><code>audit_log.csv</code></a></li>
+<li><a href="cleaning_summary.json"><code>cleaning_summary.json</code></a></li>
+<li><a href="data_quality_report.html"><code>data_quality_report.html</code></a></li>
+</ul>
+<p>All six frozen v1 artifacts were generated and verified by the completed DataForge pipeline.</p>
+<h2>8. Limitations and non-goals</h2>
+<p>DataForge v1 is a bounded portfolio demonstration over one frozen synthetic corpus. It is not a production data platform.</p>
+<ul>
+<li>The supported schema is fixed: seven sales columns, four customer reference columns, and four product reference columns, with an exhaustive documented alias list. Arbitrary spreadsheets are out of scope.</li>
+<li>Date, currency, country, and category handling is limited to the documented formats and aliases, and the demo clock is frozen at 2026-10-07 (Europe/Paris) rather than read from the machine.</li>
+<li>Near-duplicate customer names are flagged for human review only. No entity resolution, machine learning, anomaly detection, or automatic merging is performed.</li>
+<li>No database, warehouse, cloud deployment, API service, dashboard platform, streaming system, or LLM is involved.</li>
+<li>Raw inputs are immutable; the pipeline never edits source files, and it makes no claim of zero data loss beyond this reconciled corpus.</li>
+</ul>
+</body>
+</html>
