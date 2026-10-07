@@ -12,8 +12,14 @@
 | Specification version | v1.0 |
 | PDF pages reviewed | 6 of 6 |
 | Bootstrap date | 2026-10-07 |
-| Current authorized phase | DF-000 only |
-| DF-000 decision | REWORK REQUIRED pending owner resolution below |
+| Current authorized phase | DF-000R specification repair only |
+| DF-000 decision | REWORK REQUIRED; Owner accepted the finding |
+| Repair status | v1.0.1 normative appendix proposed, not adopted |
+
+The bounded repair proposal is
+[`NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md`](NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md).
+It supplies deterministic candidate decisions for Owner review but does not modify
+the authority or status of the original PDF.
 
 ## Objective
 
@@ -196,10 +202,11 @@ Tests must prove gates, not merely raise coverage. Planned ownership:
 | End-to-end outputs | DF-006 | One command produces deterministic, readable contracted artifacts. |
 | CI/release | DF-007/008 | Fresh install passes unit/integration suite and all G1-G8 assertions. |
 
-## Material specification defects requiring owner resolution
+## Material specification defects under Owner review
 
-These are not silently resolved because they control record acceptance, output
-values, or G2/G4/G5 verification.
+The Owner accepted the DF-000 rework finding and authorized DF-000R to propose,
+but not adopt, deterministic repairs. These defects control record acceptance,
+output values, or G2/G4/G5 verification.
 
 1. **Canonical schema is absent.** DF-000 requires it at exit and F02/F04/F06
    depend on it, but no table defines sales/customer/product fields, types,
@@ -221,9 +228,9 @@ The PDF also has text overflow in the page 3-4 workflow/requirements tables. The
 surrounding text makes their intended prose recoverable; this is a publication
 quality defect, not by itself a semantic blocker.
 
-### Minimum owner change needed
+### Proposed repair and remaining Owner action
 
-Add a normative appendix (or v1.0.1 replacement PDF) that defines:
+The proposed appendix now defines:
 
 - canonical tables/columns, types, requiredness, keys, output order, and joins;
 - exhaustive aliases and normalization targets for the bounded demo;
@@ -231,5 +238,6 @@ Add a normative appendix (or v1.0.1 replacement PDF) that defines:
 - validation/deduplication precedence plus deterministic survivor and G2 rules;
 - stable rule/action codes and minimum output/evidence schemas.
 
-After owner approval, update this aid to the new PDF digest, complete DF-000, and
-only then authorize DF-001.
+The Owner must now accept, reject, or amend the proposal. After explicit adoption,
+update the specification status and re-run DF-000 acceptance. DF-001 remains
+unauthorized unless the Owner separately authorizes it.

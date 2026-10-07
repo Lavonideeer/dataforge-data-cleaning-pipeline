@@ -8,15 +8,16 @@ reconciliation, and a machine-readable audit trail.
 
 ## Current status
 
-**DF-000 - specification freeze / repository bootstrap: REWORK REQUIRED**
+**DF-000R - normative repair proposal: READY FOR OWNER REVIEW**
 
 The authoritative v1.0 PDF has been recovered and recorded in
-[`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). The repository skeleton is in
-place, but implementation must not begin until the owner resolves the material
-freeze gaps listed in that document. In particular, the PDF requires a canonical
-schema and frozen rules at DF-000 exit but does not define them.
+[`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). A bounded repair resolving the
+five known specification gaps is proposed in
+[`docs/NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md`](docs/NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md).
+It is not adopted specification until the Owner approves it.
 
-No DF-001 through DF-008 work has been performed.
+DF-000 remains in rework. No DF-001 through DF-008 work has been performed or
+authorized.
 
 ## Authority
 
@@ -43,6 +44,7 @@ It is intentionally not implemented during DF-000.
 .
 |-- DataForge_Project_Workflow_v1.0.pdf
 |-- docs/SPECIFICATION.md
+|-- docs/NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md
 |-- src/dataforge/
 |-- tests/
 |-- data/demo_raw/
