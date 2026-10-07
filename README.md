@@ -1,215 +1,209 @@
 # DataForge
 
-From messy spreadsheets to validated, analysis-ready data.
+**From messy spreadsheets to validated, analysis-ready data.**
 
-DataForge is a bounded portfolio project for consolidating and validating messy
-Excel/CSV e-commerce data while preserving source provenance, rejected records,
-reconciliation, and a machine-readable audit trail.
+DataForge is a deterministic Python pipeline for a bounded e-commerce data-cleaning
+engagement. It consolidates CSV and Excel files, normalizes safe formatting defects,
+quarantines unsupported business facts, and returns client-ready data with source
+provenance and an audit trail.
 
-## Current status
-
-**DF-006 - end-to-end pipeline and client deliverables: implemented**
-
-The authoritative v1.0 PDF has been recovered and recorded in
-[`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). The Owner-adopted deterministic
-clarification is [`docs/NORMATIVE_APPENDIX_v1.0.1.md`](docs/NORMATIVE_APPENDIX_v1.0.1.md).
-Together they provide the frozen authority for future implementation.
-
-DF-000 is closed. DF-001 supplies the deterministic synthetic demo corpus,
-DF-002 provides bounded CSV/XLSX ingestion plus structural schema checks, and
-DF-003 converts recoverable representations to canonical values. DF-004 applies
-the frozen hard business rules, duplicate resolution, and reference validation.
-DF-005 serializes that evidence into the client-facing audit, summary, and
-quality artifacts. DF-006 composes those stages into the public CLI and publishes
-the complete six-file client delivery. No DF-007 or DF-008 work has been
-performed.
-
-## Authority
-
-- Source: `DataForge_Project_Workflow_v1.0.pdf`
-- Specification: v1.0 plus adopted v1.0.1 normative clarification
-- SHA-256: `ea7f9af75c73d84a5f08a89e8d9eecc043f66d8f9fb9d4fa9c3251777c038dea`
-- Bootstrap date: 2026-10-07
-
-The PDF defines the original v1 scope. The adopted appendix governs the five
-deterministic details it clarifies. Neither authorizes scope expansion.
-
-## Run the complete demo
+Python 3.11+ · openpyxl · RapidFuzz · pytest · GitHub Actions
 
 ```bash
 python -m dataforge.cli --input data/demo_raw --output examples/output
 ```
 
-The command exits nonzero for unsafe paths or structural input failures. A
-successful run reports reconciliation and writes exactly these DataForge
-artifacts while leaving unrelated output-directory files untouched:
+| Demo result | Verified value |
+| --- | ---: |
+| Input files | 6 |
+| Transaction rows | 164 |
+| Accepted | 146 |
+| Quarantined | 16 |
+| Deduplicated | 2 |
+| Material normalization events | 33 |
+| Rejected/deduplicated evidence rows | 23 |
+| Audit events | 63 |
 
-- `cleaned_sales.xlsx` - one `cleaned_sales` worksheet with typed dates, numeric
-  money, a frozen header row, and an autofilter;
-- `cleaned_sales.csv` - the same accepted transactions in deterministic source
-  order;
-- `rejected_rows.csv` - non-accepted transaction and reference evidence;
-- `audit_log.csv` - material transformations, failures, deduplication, and flags;
-- `cleaning_summary.json` - frozen metadata, counts, reconciliation, and outputs;
-- `data_quality_report.html` - client-readable quality and safeguard report.
+The transaction equation reconciles exactly: **164 = 146 accepted + 16
+quarantined + 2 deduplicated**.
 
-For the frozen corpus, the pipeline derives 164 input transactions, 146 accepted,
-16 quarantined, and 2 deduplicated. The cleaned files contain the 146 accepted
-rows plus their header.
+## Before and after
 
-## Synthetic demo data
+These examples come from the committed synthetic demo and its generated outputs.
 
-DF-001 generates 164 synthetic transaction rows across four monthly files (two
-CSV and two XLSX), plus customer and product references. Every dirty record is a
-controlled transformation of canonical ground truth.
+| Source row | Raw input | Pipeline decision | Result |
+| --- | --- | --- | --- |
+| `sales_2026_07.csv:3` | ` ord-0002 `, `02/07/2026`, `1 299,00 EUR`, ` france ` | Safely normalize and audit | Accepted as `ORD-0002`, `2026-07-02`, `1299.00`, `FR` |
+| `sales_2026_07.csv:13` | Date `31/02/2026` | Do not guess an impossible date | Quarantined with `INVALID_ORDER_DATE` |
+| `sales_2026_07.csv:15` | Price `1,299` | Do not guess an ambiguous separator | Quarantined with `INVALID_UNIT_PRICE` |
+| `sales_2026_07.csv:42` | Exact copy of `ORD-0004` | Keep the first source-order row | Deduplicated with `DUPLICATE_EXACT` and survivor provenance |
+
+## Client deliverables
+
+One successful run writes exactly six artifacts to
+[`examples/output/`](examples/output/):
+
+| Artifact | What it gives the client |
+| --- | --- |
+| [`cleaned_sales.xlsx`](examples/output/cleaned_sales.xlsx) | A client-friendly workbook with typed dates and numbers, a frozen header, and filtering |
+| [`cleaned_sales.csv`](examples/output/cleaned_sales.csv) | The same 146 accepted transactions in machine-friendly form |
+| [`rejected_rows.csv`](examples/output/rejected_rows.csv) | Evidence for 16 quarantined and 2 deduplicated transactions, plus 3 rejected and 2 deduplicated reference rows |
+| [`audit_log.csv`](examples/output/audit_log.csv) | 63 ordered events covering material normalizations, failures, flags, and deduplication |
+| [`cleaning_summary.json`](examples/output/cleaning_summary.json) | Machine-readable run metadata, counts, reconciliation, input digests, and output names |
+| [`data_quality_report.html`](examples/output/data_quality_report.html) | A self-contained, non-technical quality report with counts, defects, safeguards, and limitations |
+
+The 23 rows in `rejected_rows.csv` are an evidence set, not a transaction
+rejection count. Reference-data evidence remains separate from the transaction
+reconciliation above.
+
+## The business problem
+
+A small business rarely receives one perfect table. Monthly exports can mix CSV
+and Excel, rename columns, represent dates and EUR values differently, repeat
+orders, omit identifiers, or disagree with customer and product references.
+Blind coercion can make the file look cleaner while changing its meaning.
+
+DataForge separates safe recovery from evidence preservation:
+
+- known aliases, dates, currencies, identifiers, and categories are normalized;
+- invalid or ambiguous business facts are quarantined with stable reason codes;
+- exact duplicates are removed deterministically, while conflicting keys are
+  quarantined as a group;
+- fuzzy customer-name matches are flags only and never automatic merges;
+- every accepted transaction keeps its source file, sheet, and row.
+
+The governing principle is: **Never silently destroy customer data.**
+
+## How the pipeline works
+
+```mermaid
+flowchart LR
+    A[CSV and XLSX inputs] --> B[Ingest and schema]
+    B --> C[Normalize values]
+    C --> D{Hard validation}
+    D -->|Fail| Q[Quarantine evidence]
+    D -->|Pass| E{Duplicate resolution}
+    E -->|Exact copy| X[Deduplicated evidence]
+    E -->|Conflicting key| Q
+    E -->|Survivor| F{Reference validation}
+    F -->|Fail| Q
+    F -->|Pass| G[Accepted rows]
+    G --> H[Cleaned CSV and XLSX]
+    Q --> I[Audit, summary, and HTML report]
+    X --> I
+    G --> I
+```
+
+The precedence is fixed: normalization, hard validation, duplicate resolution,
+reference validation, then acceptance. A hard-invalid row never enters duplicate
+selection, and a conflicting order key never gets an arbitrary winner. See the
+concise [architecture guide](docs/ARCHITECTURE.md) for module responsibilities.
+
+## Safeguards and auditability
+
+- **Deterministic source order:** normalized relative path, sheet, then source row.
+- **Bounded rules:** exhaustive schema aliases and value formats; no heuristic
+  schema inference.
+- **Exact money handling:** EUR parsing and validation use decimal arithmetic.
+- **Explicit disposition:** every ingested transaction is accepted, quarantined,
+  or deduplicated exactly once.
+- **Terminal reconciliation:** the three transaction sets are disjoint and must
+  reproduce the input row set.
+- **Provenance:** source file, worksheet, and row remain attached to every record.
+- **Audit trail:** material changes and exclusions use stable codes and readable
+  explanations.
+- **Fail-safe publication:** artifacts are staged, reopened, checked, and then
+  published without deleting unrelated files.
+- **Fixture-independent production code:** the expected demo oracle is used by
+  tests, not by the pipeline.
+
+## Quality report preview
+
+The generated [HTML quality report](examples/output/data_quality_report.html) is
+self-contained and needs no web server. It summarizes processed inputs,
+transaction dispositions, the passing reconciliation equation, defect and
+normalization counts, reference-data quality, safeguards, deliverables, and the
+bounded scope. All data-derived text is escaped, and the report contains no
+external scripts or services.
+
+## Quick start
+
+From the repository root:
+
+```bash
+python -m pip install -e ".[dev]"
+python -m dataforge.cli --input data/demo_raw --output examples/output
+```
+
+The command exits nonzero for unsafe paths or structural input failures. On
+success it regenerates the six artifacts above. Source inputs remain unchanged,
+and unrelated files already present in the output directory are preserved.
+
+Run the test suite with:
+
+```bash
+pytest
+```
+
+Current verified result: **307 passed**. Coverage includes ingestion,
+normalization, validation, deduplication, reference handling, audit completeness,
+output determinism, the end-to-end CLI, and comparison with the preregistered
+demo oracle.
+
+## Reproducible demo
+
+The publishable corpus is synthetic and generated from fixed inputs:
+
+| Setting | Value |
+| --- | --- |
+| Seed | `1007` |
+| Demo date | `2026-10-07` |
+| Timezone | `Europe/Paris` |
+
+Current time, locale, filesystem enumeration, and external services do not
+determine the demo result. Regenerate the source corpus with:
 
 ```bash
 python scripts/generate_demo_data.py
 ```
 
-- Fixed seed: `1007`
-- Frozen clock: `2026-10-07`, `Europe/Paris`
-- `data/demo_raw/`: publishable messy inputs
-- `data/demo_expected/ground_truth_*.csv`: canonical source-of-truth records
-- `data/demo_expected/expected_transactions.csv`: one expected terminal outcome
-  per transaction source row
-- `data/demo_expected/expected_outcomes.json`: cases, coverage, relationships,
-  counts, and reproducibility metadata
+CSV, JSON, and HTML outputs are byte-deterministic. XLSX files are checked by
+semantic workbook content because ZIP container metadata may vary without
+changing sheets, values, types, or ordering.
 
-CSV and JSON artifacts are byte-deterministic. XLSX ZIP containers are verified
-by semantic workbook content because container bytes may vary while records do
-not. All identities, emails, orders, and products are synthetic.
-
-## Ingestion and schema boundary
-
-DF-002 discovers only immediate `.csv` and `.xlsx` inputs in deterministic
-UTF-8 relative-path order. It classifies the bounded sales, customer, and product
-roles; reads only the authorized workbook sheets; maps the exhaustive documented
-header aliases; and attaches `_source_file`, `_source_sheet`, and `_source_row`
-to every ingested record.
-
-Unexpected inputs, columns, and sheets are reported with stable schema
-diagnostics. Missing required headers and alias collisions fail ingestion without
-exposing partial row tables. Nullable business cells remain null, while all other
-cell values—including whitespace, casing, dates, and currency text—remain raw.
-Those raw values form the input boundary for DF-003.
-
-## Value normalization boundary
-
-DF-003 normalizes identifiers, descriptive text, bounded dates, exact EUR
-currency, countries, product categories, email hygiene, and integer
-representations. Canonical dates use `YYYY-MM-DD`; canonical money uses exact
-decimal parsing and two-decimal text. The frozen clock remains `2026-10-07` in
-`Europe/Paris`, but future-date policy is deliberately deferred to DF-004.
-
-Material recoveries produce stable normalization events containing provenance,
-field, original value, cleaned value, and action code. Malformed, ambiguous,
-missing-critical, and unknown values produce separate non-terminal issues. No
-rows are removed, and normalization is semantically idempotent. Hard validation,
-quarantine, deduplication, and reference validation begin only in DF-004.
-
-## Validation, deduplication, and quarantine boundary
-
-DF-004 is the first phase allowed to assign a terminal disposition. It preserves
-the frozen precedence `NORMALIZE -> HARD VALIDATION -> DUPLICATE RESOLUTION ->
-REFERENCE VALIDATION -> ACCEPT` and gives every ingested transaction row exactly
-one of `ACCEPTED`, `QUARANTINED`, or `DEDUPLICATED`.
-
-Hard validation consumes the DF-003 issues instead of reparsing raw text, so a
-normalization failure stays distinct from a successfully normalized value that
-violates a business rule (for example a parsed `-12.50` price). Every applicable
-failure is retained in frozen priority order, while the row still receives a
-single terminal disposition. Hard-invalid rows are resolved before duplicate
-accounting, so an invalid row can never become a duplicate.
-
-Duplicate resolution groups only hard-valid rows by `order_id`. Identical groups
-keep the first row in frozen provenance order and mark later copies
-`DUPLICATE_EXACT`; groups that disagree on any canonical business field are
-entirely quarantined with `DUPLICATE_KEY_CONFLICT`, with no winner selected.
-Surviving rows are then checked against usable customer and product reference
-sets. Near-duplicate customer names produce evidence-only
-`FUZZY_CUSTOMER_CANDIDATE` flags and never merge identities or rewrite keys.
-
-DF-004 asserts the G2 invariant `input = accepted + quarantined + deduplicated`
-and fails closed on any violation. On the demo corpus the rules independently
-derive `164 = 146 + 16 + 2`. DF-004 emits internal structured evidence only; the
-client-facing artifacts belong to DF-005.
-
-## Audit, summary, and quality report boundary
-
-DF-005 reports decisions; it does not make them. It consumes DF-002/DF-003/DF-004
-evidence without re-parsing values, re-resolving duplicates, or re-deciding any
-disposition, and writes exactly four artifacts:
-
-- `rejected_rows.csv` - every non-accepted record per appendix section 8.1. On the
-  demo corpus that is 23 data rows: 16 quarantined transactions, 2 deduplicated
-  transactions, 3 rejected customer/product references, and 2 deduplicated
-  references. Reference rows are evidence only and stay outside transaction
-  reconciliation, so 23 evidence rows is not a 23-row rejection count.
-- `audit_log.csv` - every material normalization, failure, deduplication,
-  reference failure, and flag, ordered by source order, then processing stage,
-  then appendix catalogue priority, with original and cleaned values.
-- `cleaning_summary.json` - the frozen v1 summary contract: run metadata, input
-  file digests, transaction and reference counts, rule counts, normalization
-  counts, and the v1 deliverable list.
-- `data_quality_report.html` - a self-contained, dependency-free report covering
-  processed inputs, dispositions, the G2 equation with an explicit pass/fail,
-  defect counts, reference quality, safeguards, and bounded-demo limitations.
-
-Every audit row traces back to exactly one upstream evidence object, and the
-reporting modules expose no parser, resolver, or rule engine. All four artifacts
-are byte-deterministic and contain no timestamp, hostname, or absolute path.
-DF-006 invokes this evidence layer with completed-pipeline context so the final
-HTML truthfully links all six generated artifacts without changing evidence
-semantics.
-
-## End-to-end delivery boundary
-
-DF-006 calls DF-002 ingestion, DF-003 normalization, DF-004 validation, and
-DF-005 evidence writing through their committed interfaces. It does not duplicate
-their rules. Only DF-004 `ACCEPTED` outcomes enter `cleaned_sales.*`; the pipeline
-asserts accepted-row identity and G2 reconciliation before publishing.
-
-The six artifacts are generated in a staging directory, reopened and checked,
-then published by known filename. Existing known outputs are restored if
-publication fails, and foreign files are never deleted. CSV and evidence outputs
-are byte-deterministic. XLSX is verified semantically because ZIP container bytes
-may vary while sheet names, headers, types, values, and ordering remain identical.
-
-## Repository layout
+## Repository map
 
 ```text
-.
-|-- DataForge_Project_Workflow_v1.0.pdf
-|-- docs/SPECIFICATION.md
-|-- docs/NORMATIVE_APPENDIX_v1.0.1.md
-|-- src/dataforge/
-|-- tests/
-|-- data/demo_raw/
-|-- data/demo_expected/
-|-- examples/output/
-|-- scripts/generate_demo_data.py
-|-- .github/workflows/tests.yml
-|-- pyproject.toml
-`-- LICENSE
+src/dataforge/        production package
+tests/                deterministic test suite
+data/demo_raw/        intentionally messy synthetic input
+data/demo_expected/   preregistered test oracle
+examples/output/      six generated client deliverables
+docs/                 specification and architecture
+scripts/              deterministic demo generator
 ```
 
-## Dependency plan
+The implementation details live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+The original project authority is
+[`DataForge_Project_Workflow_v1.0.pdf`](DataForge_Project_Workflow_v1.0.pdf), with
+the adopted deterministic clarifications in
+[`docs/NORMATIVE_APPENDIX_v1.0.1.md`](docs/NORMATIVE_APPENDIX_v1.0.1.md).
 
-The runtime currently uses:
+## Scope and limitations
 
-- `openpyxl` for XLSX fixture generation and bounded ingestion;
-- `rapidfuzz` for the frozen section 5.7 evidence-only customer-name comparison.
+DataForge v1 is deliberately bounded:
 
-The development dependency is `pytest`. DF-006 adds no runtime dependency.
+- synthetic e-commerce data only;
+- CSV and XLSX inputs with frozen sales, customer, and product schemas;
+- documented aliases and deterministic rule-based cleaning;
+- no database, warehouse, distributed processing, or web application;
+- no ML anomaly detection, LLM cleaning, or fuzzy automatic merge;
+- no universal schema inference or claim of arbitrary-dataset support.
 
-## Scope guard
+This repository demonstrates Python engineering, spreadsheet processing,
+deterministic cleaning, validation, testing, auditability, and practical client
+delivery within that scope.
 
-V1 excludes databases/warehouses, cloud infrastructure, hosted APIs, web apps,
-authentication, streaming/distributed systems, Spark, Airflow, Kafka, dbt,
-Kubernetes, LLM cleaning, ML anomaly detection, predictive models, interactive
-BI dashboards, and generic arbitrary-schema plugin frameworks.
+## License
 
-See [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md) for the complete recovered
-requirements, acceptance gates, phase boundaries, testing strategy, and the
-owner decisions and phase boundaries.
+Licensed under the [MIT License](LICENSE).
