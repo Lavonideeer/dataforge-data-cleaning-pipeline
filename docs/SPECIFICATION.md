@@ -13,13 +13,14 @@
 | Specification version | v1.0 plus adopted v1.0.1 normative clarification |
 | PDF pages reviewed | 6 of 6 |
 | Bootstrap date | 2026-10-07 |
-| Current authorized phase | DF-003 deterministic value normalization only |
+| Current authorized phase | DF-004 validation, deduplication, and quarantine only |
 | DF-000 decision | PASS after adopted clarification and closure review |
 | Appendix status | ADOPTED on 2026-10-07 |
 | DF-000R source commit | `389c7a3` |
 | DF-001 corpus | Seed `1007`; frozen clock `2026-10-07`, `Europe/Paris` |
 | DF-002 boundary | Deterministic CSV/XLSX discovery, selected-sheet ingestion, provenance, aliases, and structural diagnostics |
 | DF-003 boundary | Canonical recoverable values plus deterministic normalization events/issues; no terminal disposition |
+| DF-004 boundary | Hard validation, duplicate resolution, reference validation, and internal terminal-disposition evidence; no client-facing artifact |
 
 ## Authority model
 
@@ -115,6 +116,70 @@ the deliverable contract.
 Frozen principle: never silently destroy customer data. Every dropped,
 quarantined, deduplicated, normalized, or materially changed record must be
 explainable from machine-readable evidence.
+
+## DF-004 validation, deduplication, and quarantine contract
+
+Validation precedence is frozen and must not be reordered for convenience:
+
+```text
+INGEST -> SCHEMA -> NORMALIZE -> HARD VALIDATION
+       -> DUPLICATE RESOLUTION -> REFERENCE VALIDATION -> ACCEPT
+```
+
+**Terminal disposition model.** Every successfully ingested transaction row
+receives exactly one terminal disposition: `ACCEPTED`, `QUARANTINED`, or
+`DEDUPLICATED`. A row may carry several failure codes but never more than one
+terminal disposition, and no row may silently disappear. The production result
+contract asserts that the three terminal buckets are pairwise disjoint, that
+their union equals every ingested transaction provenance identity, and that
+`input_transaction_rows = accepted_rows + quarantined_rows + deduplicated_rows`.
+Any violation raises and fails the run closed. Reference rows use the separate
+dispositions `REFERENCE_VALID`, `REFERENCE_REJECTED`, and
+`REFERENCE_DEDUPLICATED` and never enter the transaction equation.
+
+**Hard validation.** DF-004 consumes the DF-003 issues rather than reparsing raw
+strings, keeping a normalization failure distinct from a successfully normalized
+value that violates a business rule. It evaluates every applicable rule and keeps
+all failures in the frozen primary-code order `MISSING_ORDER_ID`,
+`MISSING_CUSTOMER_ID`, `MISSING_PRODUCT_ID`, `INVALID_IDENTIFIER` (field order
+`order_id`, `customer_id`, `product_id`), `INVALID_ORDER_DATE`,
+`FUTURE_ORDER_DATE`, `INVALID_QUANTITY`, `INVALID_UNIT_PRICE`. Business rules add
+`quantity > 0`, `unit_price_eur >= 0.00` in exact decimal arithmetic, and
+`order_date <= 2026-10-07` against the frozen clock, never the machine clock.
+`UNKNOWN_COUNTRY`, `UNKNOWN_CATEGORY`, and `INVALID_EMAIL_FORMAT` stay flag-only.
+
+**Hard-validation precedence over deduplication.** A hard-invalid row is
+`QUARANTINED` immediately and does not participate in duplicate grouping, so it
+can never become `DEDUPLICATED` merely because another row shares its key.
+
+**Duplicate behavior.** Groups form only from hard-valid rows sharing `order_id`.
+If every member is identical across the seven normalized business fields, the
+first member in frozen section 2 source order survives and each later member is
+`DEDUPLICATED` / `DUPLICATE_EXACT` with evidence naming that survivor. If any
+member differs, every member is `QUARANTINED` / `DUPLICATE_KEY_CONFLICT`; no
+winner is selected and no conflicting row reaches accepted output.
+
+**Reference validation.** Customer rows with a missing or invalid `customer_id`,
+and product rows with a missing or invalid `product_id`, a missing/unparseable
+price, or a negative price, are rejected and excluded from the lookup; email,
+country, and category flags do not exclude them. Identical reference copies keep
+the first source-order row and mark the rest `REFERENCE_DUPLICATED` /
+`REFERENCE_DUPLICATE_EXACT`; conflicting reference keys reject every member with
+`REFERENCE_KEY_CONFLICT` and make the key unavailable. Surviving sales rows then
+require both keys to be present in the usable reference sets; either failure
+quarantines the row, and `UNKNOWN_CUSTOMER_REFERENCE` precedes
+`UNKNOWN_PRODUCT_REFERENCE`. Reference tables validate foreign keys only:
+transaction rows are never enriched with reference descriptive fields or
+reference prices. Near-duplicate customer names emit evidence-only
+`FUZZY_CUSTOMER_CANDIDATE` at the frozen threshold and never merge entities or
+rewrite identifiers.
+
+**DF-005 boundary.** DF-004 publishes no client-facing artifact. It produces
+internal structured evidence for hard failures, duplicate decisions, conflicts,
+reference failures, fuzzy flags, and terminal dispositions so that DF-005 can
+render `rejected_rows.csv`, `audit_log.csv`, `cleaning_summary.json`, and the
+HTML quality report. `cleaned_sales.csv`/`.xlsx`, the final CLI, and the
+end-to-end pipeline remain DF-006 deliverables.
 
 ## Repository architecture
 

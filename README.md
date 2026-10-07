@@ -8,7 +8,7 @@ reconciliation, and a machine-readable audit trail.
 
 ## Current status
 
-**DF-003 - deterministic value normalization: implemented**
+**DF-004 - validation, deduplication, and quarantine: implemented**
 
 The authoritative v1.0 PDF has been recovered and recorded in
 [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). The Owner-adopted deterministic
@@ -17,8 +17,9 @@ Together they provide the frozen authority for future implementation.
 
 DF-000 is closed. DF-001 supplies the deterministic synthetic demo corpus,
 DF-002 provides bounded CSV/XLSX ingestion plus structural schema checks, and
-DF-003 converts recoverable representations to canonical values. No DF-004
-through DF-008 implementation has been performed or authorized.
+DF-003 converts recoverable representations to canonical values. DF-004 applies
+the frozen hard business rules, duplicate resolution, and reference validation.
+No DF-005 through DF-008 implementation has been performed or authorized.
 
 ## Authority
 
@@ -91,6 +92,34 @@ missing-critical, and unknown values produce separate non-terminal issues. No
 rows are removed, and normalization is semantically idempotent. Hard validation,
 quarantine, deduplication, and reference validation begin only in DF-004.
 
+## Validation, deduplication, and quarantine boundary
+
+DF-004 is the first phase allowed to assign a terminal disposition. It preserves
+the frozen precedence `NORMALIZE -> HARD VALIDATION -> DUPLICATE RESOLUTION ->
+REFERENCE VALIDATION -> ACCEPT` and gives every ingested transaction row exactly
+one of `ACCEPTED`, `QUARANTINED`, or `DEDUPLICATED`.
+
+Hard validation consumes the DF-003 issues instead of reparsing raw text, so a
+normalization failure stays distinct from a successfully normalized value that
+violates a business rule (for example a parsed `-12.50` price). Every applicable
+failure is retained in frozen priority order, while the row still receives a
+single terminal disposition. Hard-invalid rows are resolved before duplicate
+accounting, so an invalid row can never become a duplicate.
+
+Duplicate resolution groups only hard-valid rows by `order_id`. Identical groups
+keep the first row in frozen provenance order and mark later copies
+`DUPLICATE_EXACT`; groups that disagree on any canonical business field are
+entirely quarantined with `DUPLICATE_KEY_CONFLICT`, with no winner selected.
+Surviving rows are then checked against usable customer and product reference
+sets. Near-duplicate customer names produce evidence-only
+`FUZZY_CUSTOMER_CANDIDATE` flags and never merge identities or rewrite keys.
+
+DF-004 asserts the G2 invariant `input = accepted + quarantined + deduplicated`
+and fails closed on any violation. On the demo corpus the rules independently
+derive `164 = 146 + 16 + 2`. DF-004 emits internal structured evidence only:
+`rejected_rows.csv`, `audit_log.csv`, `cleaning_summary.json`, and the HTML
+report remain DF-005/DF-006 deliverables.
+
 ## Repository layout
 
 ```text
@@ -114,13 +143,13 @@ quarantine, deduplication, and reference validation begin only in DF-004.
 The runtime currently uses:
 
 - `openpyxl` for XLSX fixture generation and bounded ingestion;
+- `rapidfuzz` for the frozen section 5.7 evidence-only customer-name comparison.
 
 Later phases may add only their planned minimum dependencies:
 
 - `pandas` only if later tabular transformation genuinely requires it;
 - one schema library, selected only after the schema is frozen (`pandera` is the
   leading candidate; do not add both Pandera and Pydantic without justification);
-- `rapidfuzz` only when DF-004 implements flag-only near-duplicate detection;
 - `pytest` as the development test runner.
 
 Dependencies enter the project only in the phase that needs them.
