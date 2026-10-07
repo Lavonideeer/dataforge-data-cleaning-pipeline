@@ -8,16 +8,17 @@ reconciliation, and a machine-readable audit trail.
 
 ## Current status
 
-**DF-002 - deterministic ingestion and schema boundary: implemented**
+**DF-003 - deterministic value normalization: implemented**
 
 The authoritative v1.0 PDF has been recovered and recorded in
 [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). The Owner-adopted deterministic
 clarification is [`docs/NORMATIVE_APPENDIX_v1.0.1.md`](docs/NORMATIVE_APPENDIX_v1.0.1.md).
 Together they provide the frozen authority for future implementation.
 
-DF-000 is closed. DF-001 supplies the deterministic synthetic demo corpus, and
-DF-002 provides bounded CSV/XLSX ingestion plus structural schema checks. No
-DF-003 through DF-008 implementation has been performed or authorized.
+DF-000 is closed. DF-001 supplies the deterministic synthetic demo corpus,
+DF-002 provides bounded CSV/XLSX ingestion plus structural schema checks, and
+DF-003 converts recoverable representations to canonical values. No DF-004
+through DF-008 implementation has been performed or authorized.
 
 ## Authority
 
@@ -37,7 +38,7 @@ The frozen specification reserves this interface for DF-006:
 python -m dataforge.cli --input data/demo_raw --output examples/output
 ```
 
-It remains reserved for the later CLI phase and is not implemented by DF-002.
+It remains reserved for the later CLI phase and is not implemented by DF-003.
 
 ## Synthetic demo data
 
@@ -74,7 +75,21 @@ Unexpected inputs, columns, and sheets are reported with stable schema
 diagnostics. Missing required headers and alias collisions fail ingestion without
 exposing partial row tables. Nullable business cells remain null, while all other
 cell values—including whitespace, casing, dates, and currency text—remain raw.
-Value normalization begins only in DF-003.
+Those raw values form the input boundary for DF-003.
+
+## Value normalization boundary
+
+DF-003 normalizes identifiers, descriptive text, bounded dates, exact EUR
+currency, countries, product categories, email hygiene, and integer
+representations. Canonical dates use `YYYY-MM-DD`; canonical money uses exact
+decimal parsing and two-decimal text. The frozen clock remains `2026-10-07` in
+`Europe/Paris`, but future-date policy is deliberately deferred to DF-004.
+
+Material recoveries produce stable normalization events containing provenance,
+field, original value, cleaned value, and action code. Malformed, ambiguous,
+missing-critical, and unknown values produce separate non-terminal issues. No
+rows are removed, and normalization is semantically idempotent. Hard validation,
+quarantine, deduplication, and reference validation begin only in DF-004.
 
 ## Repository layout
 
