@@ -13,7 +13,7 @@
 | Specification version | v1.0 plus adopted v1.0.1 normative clarification |
 | PDF pages reviewed | 6 of 6 |
 | Bootstrap date | 2026-10-07 |
-| Current authorized phase | DF-004 validation, deduplication, and quarantine only |
+| Current authorized phase | DF-005 audit, summary, and quality reporting only |
 | DF-000 decision | PASS after adopted clarification and closure review |
 | Appendix status | ADOPTED on 2026-10-07 |
 | DF-000R source commit | `389c7a3` |
@@ -21,6 +21,7 @@
 | DF-002 boundary | Deterministic CSV/XLSX discovery, selected-sheet ingestion, provenance, aliases, and structural diagnostics |
 | DF-003 boundary | Canonical recoverable values plus deterministic normalization events/issues; no terminal disposition |
 | DF-004 boundary | Hard validation, duplicate resolution, reference validation, and internal terminal-disposition evidence; no client-facing artifact |
+| DF-005 boundary | Evidence serialization and reporting only: `rejected_rows.csv`, `audit_log.csv`, `cleaning_summary.json`, `data_quality_report.html`; no cleaned-sales output and no business decision |
 
 ## Authority model
 
@@ -180,6 +181,64 @@ reference failures, fuzzy flags, and terminal dispositions so that DF-005 can
 render `rejected_rows.csv`, `audit_log.csv`, `cleaning_summary.json`, and the
 HTML quality report. `cleaned_sales.csv`/`.xlsx`, the final CLI, and the
 end-to-end pipeline remain DF-006 deliverables.
+
+## DF-005 evidence and reporting contract
+
+DF-005 reports decisions; it never makes them. It consumes DF-002/DF-003/DF-004
+evidence without parsing currency, dates, identifiers, quantities, or prices,
+without resolving duplicates, without validating foreign keys, and without
+choosing a terminal disposition. The reporting modules expose no rule engine.
+
+**Artifacts.** Exactly four are authorized: `rejected_rows.csv` (appendix 8.1),
+`audit_log.csv` (8.2), `cleaning_summary.json` (8.3), and
+`data_quality_report.html` (8.6). All are UTF-8, use LF line endings, and are
+byte-deterministic: no wall-clock timestamp, hostname, username, absolute path,
+or random run identifier is written.
+
+**`rejected_rows.csv` row set.** Appendix 8.1 governs unchanged: the file holds
+every `QUARANTINED` and `DEDUPLICATED` transaction row plus every
+`REFERENCE_REJECTED` and `REFERENCE_DEDUPLICATED` reference row. On the frozen
+corpus that is 23 data rows, recorded as 16 + 2 transaction rows and 3 + 2
+reference rows. The filename is historical and its semantics are not narrowed.
+
+**Evidence artifact versus transaction G2.** The 23-row evidence artifact is not
+a transaction rejection count. Transaction reconciliation remains exactly
+`164 = 146 + 16 + 2`, and reference rows never enter that equation. A row with
+several failures is still one rejected row whose `primary_rule_code`,
+`rule_codes`, and `reason` carry every applicable terminal failure. A
+deduplicated transaction is classified `DEDUPLICATED`, never `QUARANTINED`, is
+excluded from the quarantine count, and stays traceable through the survivor
+provenance in the audit log.
+
+**Audit completeness.** `audit_log.csv` is the union of three upstream evidence
+sources and nothing else: DF-003 material `NormalizationEvent`s, DF-003
+`NormalizationIssue`s whose action type is `FLAG`, and DF-004 `ValidationEvent`s.
+DF-003 `VALIDATION_FAILURE` issues are not copied, because DF-004 already emits
+one failure event per detected failure. `event_index` starts at 1 and follows
+source order, then processing stage, then appendix section 7 catalogue priority.
+No-op normalizations emit no event, and `field_name` is empty for row/group
+events. Every audit row therefore satisfies `evidence ⊆ upstream evidence` while
+also being complete over it.
+
+**Summary and metrics.** `cleaning_summary.json` carries exactly the frozen
+top-level keys `specification_version`, `run_metadata`, `input_files`,
+`transaction_counts`, `reference_counts`, `rule_counts`, `normalization_counts`,
+and `outputs`. `rule_counts` and `normalization_counts` count the audit events
+actually written to `audit_log.csv`, so the summary can never disagree with the
+log. The `outputs` array is the frozen six-name v1 deliverable contract and
+includes `cleaned_sales.xlsx`/`.csv`, which this phase does not generate and does
+not claim to have generated. No quality score beyond these frozen counts is
+defined; the report shows percentages only as labelled derivations of those
+counts over the input row count.
+
+**Report.** `data_quality_report.html` is self-contained: no CDN, no script, no
+framework, and all data-derived text is HTML-escaped. It presents, in the frozen
+order, the specification version and demo clock, processed inputs and input
+counts, transaction dispositions, the G2 equation with an explicit pass/fail,
+defect and normalization counts, reference-data validity and fuzzy candidates,
+safeguards (provenance, quarantine, audit trail, no silent deletion), the output
+artifact names with `cleaned_sales.*` identified as DF-006 deliverables, and the
+bounded-demo limitations and v1 non-goals.
 
 ## Repository architecture
 

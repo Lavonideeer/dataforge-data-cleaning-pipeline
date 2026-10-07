@@ -8,7 +8,7 @@ reconciliation, and a machine-readable audit trail.
 
 ## Current status
 
-**DF-004 - validation, deduplication, and quarantine: implemented**
+**DF-005 - audit, summary, and quality report: implemented**
 
 The authoritative v1.0 PDF has been recovered and recorded in
 [`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). The Owner-adopted deterministic
@@ -19,7 +19,9 @@ DF-000 is closed. DF-001 supplies the deterministic synthetic demo corpus,
 DF-002 provides bounded CSV/XLSX ingestion plus structural schema checks, and
 DF-003 converts recoverable representations to canonical values. DF-004 applies
 the frozen hard business rules, duplicate resolution, and reference validation.
-No DF-005 through DF-008 implementation has been performed or authorized.
+DF-005 serializes that evidence into the client-facing audit, summary, and
+quality artifacts. No DF-006 through DF-008 implementation has been performed or
+authorized.
 
 ## Authority
 
@@ -39,7 +41,7 @@ The frozen specification reserves this interface for DF-006:
 python -m dataforge.cli --input data/demo_raw --output examples/output
 ```
 
-It remains reserved for the later CLI phase and is not implemented by DF-003.
+It remains reserved for the DF-006 CLI phase and is not implemented by DF-005.
 
 ## Synthetic demo data
 
@@ -116,9 +118,35 @@ sets. Near-duplicate customer names produce evidence-only
 
 DF-004 asserts the G2 invariant `input = accepted + quarantined + deduplicated`
 and fails closed on any violation. On the demo corpus the rules independently
-derive `164 = 146 + 16 + 2`. DF-004 emits internal structured evidence only:
-`rejected_rows.csv`, `audit_log.csv`, `cleaning_summary.json`, and the HTML
-report remain DF-005/DF-006 deliverables.
+derive `164 = 146 + 16 + 2`. DF-004 emits internal structured evidence only; the
+client-facing artifacts belong to DF-005.
+
+## Audit, summary, and quality report boundary
+
+DF-005 reports decisions; it does not make them. It consumes DF-002/DF-003/DF-004
+evidence without re-parsing values, re-resolving duplicates, or re-deciding any
+disposition, and writes exactly four artifacts:
+
+- `rejected_rows.csv` - every non-accepted record per appendix section 8.1. On the
+  demo corpus that is 23 data rows: 16 quarantined transactions, 2 deduplicated
+  transactions, 3 rejected customer/product references, and 2 deduplicated
+  references. Reference rows are evidence only and stay outside transaction
+  reconciliation, so 23 evidence rows is not a 23-row rejection count.
+- `audit_log.csv` - every material normalization, failure, deduplication,
+  reference failure, and flag, ordered by source order, then processing stage,
+  then appendix catalogue priority, with original and cleaned values.
+- `cleaning_summary.json` - the frozen v1 summary contract: run metadata, input
+  file digests, transaction and reference counts, rule counts, normalization
+  counts, and the v1 deliverable list.
+- `data_quality_report.html` - a self-contained, dependency-free report covering
+  processed inputs, dispositions, the G2 equation with an explicit pass/fail,
+  defect counts, reference quality, safeguards, and bounded-demo limitations.
+
+Every audit row traces back to exactly one upstream evidence object, and the
+reporting modules expose no parser, resolver, or rule engine. All four artifacts
+are byte-deterministic and contain no timestamp, hostname, or absolute path.
+`cleaned_sales.csv` and `cleaned_sales.xlsx` remain DF-006 deliverables and are
+named as such; DF-005 does not create them.
 
 ## Repository layout
 
