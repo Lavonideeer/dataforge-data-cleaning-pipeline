@@ -1,24 +1,30 @@
-# DataForge v1.0.1 normative appendix - proposal
+# DataForge v1.0.1 normative appendix
 
-**Status: PROPOSED FOR OWNER REVIEW - NOT ADOPTED**
+**Status:** ADOPTED
 
-**Task:** DF-000R
+**Version:** v1.0.1 normative clarification
 
-**Proposal date:** 2026-10-07
+**Adoption date:** 2026-10-07
 
-**Base authority:** `DataForge_Project_Workflow_v1.0.pdf`
+**Original authority:** `DataForge_Project_Workflow_v1.0.pdf`
+
 **Base SHA-256:** `ea7f9af75c73d84a5f08a89e8d9eecc043f66d8f9fb9d4fa9c3251777c038dea`
 
-This appendix proposes only the rules needed to resolve the five material gaps
-found in DF-000. Until the Owner adopts it, the PDF remains the sole authoritative
-v1.0 specification, DF-000 remains in rework, and DF-001 is not authorized.
+**DF-000R source commit:** `389c7a3`
 
-Normative keywords (`MUST`, `MUST NOT`, `SHOULD`) in this proposal describe the
-behavior that would become binding if the Owner adopts this appendix.
+This appendix was adopted by the Owner to resolve only the five material gaps
+found in DF-000. The original PDF continues to define the project objective,
+scope, phases, gates, deliverables, and original requirements. Where this appendix
+provides a more precise rule for one of the five underspecified deterministic
+implementation areas, this appendix governs that implementation detail. It does
+not authorize expansion of v1 scope or commencement of DF-001.
+
+Normative keywords (`MUST`, `MUST NOT`, `SHOULD`) are binding within this adopted
+clarification.
 
 ## Repair traceability
 
-| DF-000 defect | Proposed resolution | Functional requirements | Acceptance gates |
+| DF-000 defect | Adopted resolution | Functional requirements | Acceptance gates |
 | --- | --- | --- | --- |
 | Missing canonical schemas | Sections 1-4 freeze tables, fields, types, keys, aliases, provenance, joins, and final order | F01, F02, F04-F06, F10 | G1-G4, G6, G7 |
 | Incomplete normalization | Section 5 freezes bounded text, country, currency, date, email, category, and fuzzy rules | F03, F04, F06, F08 | G1, G4-G6 |
@@ -559,7 +565,7 @@ Each case below is an independent successful run or isolated fixture. `I`, `A`,
 `Q`, and `D` denote input, accepted, quarantined, and deduplicated transaction
 row counts.
 
-| Case | Proposed result | G2 check |
+| Case | Expected result | G2 check |
 | --- | --- | --- |
 | A - valid row | `ACCEPTED`; no terminal error evidence | `1 = 1 + 0 + 0` |
 | B - formatting only | Normalize, audit changed fields, then `ACCEPTED` | `1 = 1 + 0 + 0` |
@@ -574,14 +580,14 @@ row counts.
 
 These cases confirm that evidence multiplicity never changes terminal row counts.
 
-## 10. Scope and adoption
+## 10. Scope and authority
 
-This proposal adds no runtime implementation and no product feature. It adds no
+This appendix adds no runtime implementation and no product feature. It adds no
 database, cloud service, web/API/authentication surface, distributed technology,
 LLM/ML system, dashboard, schema engine, or universal cleaner. It only freezes
 bounded demo behavior needed to test F01-F10 and G1-G8.
 
-Owner adoption SHOULD be recorded explicitly. If adopted, supporting documents
-must change the specification status to v1.0.1, close the five DF-000 defects, and
-re-run DF-000 acceptance. Adoption itself does not authorize DF-001 unless the
-Owner separately does so.
+This clarification was adopted on 2026-10-07 from DF-000R source commit `389c7a3`.
+Its adoption closes the five specification gaps after successful DF-000
+re-evaluation. DF-001 remains unauthorized unless the Owner separately authorizes
+it.

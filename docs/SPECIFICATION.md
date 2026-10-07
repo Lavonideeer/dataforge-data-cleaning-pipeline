@@ -1,7 +1,8 @@
-# DataForge v1.0 implementation specification aid
+# DataForge v1.0 / v1.0.1 implementation specification aid
 
 > Authority notice: this file is a concise implementation aid. The original PDF
-> `DataForge_Project_Workflow_v1.0.pdf` remains authoritative for v1.0.
+> and adopted v1.0.1 normative appendix are the governing documents described
+> below.
 
 ## Provenance and phase
 
@@ -9,17 +10,24 @@
 | --- | --- |
 | PDF filename | `DataForge_Project_Workflow_v1.0.pdf` |
 | PDF SHA-256 | `ea7f9af75c73d84a5f08a89e8d9eecc043f66d8f9fb9d4fa9c3251777c038dea` |
-| Specification version | v1.0 |
+| Specification version | v1.0 plus adopted v1.0.1 normative clarification |
 | PDF pages reviewed | 6 of 6 |
 | Bootstrap date | 2026-10-07 |
-| Current authorized phase | DF-000R specification repair only |
-| DF-000 decision | REWORK REQUIRED; Owner accepted the finding |
-| Repair status | v1.0.1 normative appendix proposed, not adopted |
+| Current authorized phase | DF-000 closure only; DF-001 not authorized |
+| DF-000 decision | PASS after adopted clarification and closure review |
+| Appendix status | ADOPTED on 2026-10-07 |
+| DF-000R source commit | `389c7a3` |
 
-The bounded repair proposal is
-[`NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md`](NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md).
-It supplies deterministic candidate decisions for Owner review but does not modify
-the authority or status of the original PDF.
+## Authority model
+
+1. `DataForge_Project_Workflow_v1.0.pdf` defines the objective, scope, phases,
+   gates, deliverables, and original functional requirements.
+2. [`NORMATIVE_APPENDIX_v1.0.1.md`](NORMATIVE_APPENDIX_v1.0.1.md) is the adopted
+   normative clarification for the five previously underspecified deterministic
+   implementation areas.
+3. Where the appendix provides a more precise rule in those five areas, the
+   appendix governs that implementation detail.
+4. The appendix is not permission to expand v1 scope or begin DF-001.
 
 ## Objective
 
@@ -202,35 +210,30 @@ Tests must prove gates, not merely raise coverage. Planned ownership:
 | End-to-end outputs | DF-006 | One command produces deterministic, readable contracted artifacts. |
 | CI/release | DF-007/008 | Fresh install passes unit/integration suite and all G1-G8 assertions. |
 
-## Material specification defects under Owner review
+## Resolved DF-000 specification defects
 
-The Owner accepted the DF-000 rework finding and authorized DF-000R to propose,
-but not adopt, deterministic repairs. These defects control record acceptance,
-output values, or G2/G4/G5 verification.
+The Owner adopted the v1.0.1 appendix. Each prior material defect now has
+deterministic authority:
 
-1. **Canonical schema is absent.** DF-000 requires it at exit and F02/F04/F06
-   depend on it, but no table defines sales/customer/product fields, types,
-   requiredness, business keys, output columns, or reference-join behavior.
-2. **Normalization rules are not frozen.** F03 names domains but supplies no
-   canonical country/category values, complete alias maps, locale disambiguation
-   policy, case policy, or email normalization/validation outcome.
-3. **Date boundary is absent.** The dataset section requires future dates under a
-   "frozen demo date," but does not state that date or timezone.
-4. **Duplicate precedence/accounting is absent.** F05/F06/G2 do not define which
-   duplicate survives, whether duplicate `order_id` rows are deduplicated or
-   quarantined when their values conflict, or event priority when a row is both
-   invalid and duplicate. This changes accepted/quarantined/deduplicated counts.
-5. **Stable rules/evidence schemas are absent.** F07/F08 require rule/action codes
-   and evidence fields, but the code catalogue, rejected-row schema, audit schema,
-   summary schema, and XLSX sheet contract are not defined.
+1. **Canonical schemas - RESOLVED.** Appendix sections 1-4 define fields, types,
+   nullability, criticality, keys, aliases, provenance, joins, and final order.
+2. **Normalization rules - RESOLVED.** Section 5 defines bounded text, country,
+   currency, date, email, category, and fuzzy-candidate behavior.
+3. **Frozen demo clock - RESOLVED.** Section 5.4 fixes `2026-10-07` and
+   `Europe/Paris` independently of the machine clock.
+4. **Precedence and accounting - RESOLVED.** Sections 2 and 6 define processing
+   order, deterministic duplicate behavior, exactly one terminal disposition,
+   multiple-failure ordering, and the G2 equation.
+5. **Stable codes and evidence/output contracts - RESOLVED.** Sections 7-8 define
+   stable codes and exact CSV, JSON, XLSX, and report contracts.
 
 The PDF also has text overflow in the page 3-4 workflow/requirements tables. The
 surrounding text makes their intended prose recoverable; this is a publication
 quality defect, not by itself a semantic blocker.
 
-### Proposed repair and remaining Owner action
+### DF-000 closure
 
-The proposed appendix now defines:
+The combined authority now defines:
 
 - canonical tables/columns, types, requiredness, keys, output order, and joins;
 - exhaustive aliases and normalization targets for the bounded demo;
@@ -238,6 +241,6 @@ The proposed appendix now defines:
 - validation/deduplication precedence plus deterministic survivor and G2 rules;
 - stable rule/action codes and minimum output/evidence schemas.
 
-The Owner must now accept, reject, or amend the proposal. After explicit adoption,
-update the specification status and re-run DF-000 acceptance. DF-001 remains
-unauthorized unless the Owner separately authorizes it.
+The DF-000 exit review found sufficient deterministic authority to implement
+F01-F10 and later prove G1-G8. DF-000 is closed. DF-001 remains unauthorized
+unless the Owner separately authorizes it.

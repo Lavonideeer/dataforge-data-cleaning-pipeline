@@ -8,25 +8,25 @@ reconciliation, and a machine-readable audit trail.
 
 ## Current status
 
-**DF-000R - normative repair proposal: READY FOR OWNER REVIEW**
+**DF-000 - specification freeze / repository bootstrap: PASS**
 
 The authoritative v1.0 PDF has been recovered and recorded in
-[`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). A bounded repair resolving the
-five known specification gaps is proposed in
-[`docs/NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md`](docs/NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md).
-It is not adopted specification until the Owner approves it.
+[`docs/SPECIFICATION.md`](docs/SPECIFICATION.md). The Owner-adopted deterministic
+clarification is [`docs/NORMATIVE_APPENDIX_v1.0.1.md`](docs/NORMATIVE_APPENDIX_v1.0.1.md).
+Together they provide the frozen authority for future implementation.
 
-DF-000 remains in rework. No DF-001 through DF-008 work has been performed or
-authorized.
+DF-000 is closed. No DF-001 through DF-008 work has been performed, and DF-001
+still requires separate Owner authorization.
 
 ## Authority
 
 - Source: `DataForge_Project_Workflow_v1.0.pdf`
-- Version: v1.0
+- Specification: v1.0 plus adopted v1.0.1 normative clarification
 - SHA-256: `ea7f9af75c73d84a5f08a89e8d9eecc043f66d8f9fb9d4fa9c3251777c038dea`
 - Bootstrap date: 2026-10-07
 
-The PDF is authoritative. The Markdown specification is an implementation aid.
+The PDF defines the original v1 scope. The adopted appendix governs the five
+deterministic details it clarifies. Neither authorizes scope expansion.
 
 ## Intended public command
 
@@ -44,7 +44,7 @@ It is intentionally not implemented during DF-000.
 .
 |-- DataForge_Project_Workflow_v1.0.pdf
 |-- docs/SPECIFICATION.md
-|-- docs/NORMATIVE_APPENDIX_v1.0.1_PROPOSAL.md
+|-- docs/NORMATIVE_APPENDIX_v1.0.1.md
 |-- src/dataforge/
 |-- tests/
 |-- data/demo_raw/
