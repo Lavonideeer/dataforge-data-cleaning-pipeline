@@ -1,0 +1,25 @@
+customer_id,customer_name,email,country
+C001,Aline Martin,aline.martin@example.test,FR
+C002,Bruno Leroy,bruno.leroy@example.test,FR
+C003,Camille Roux,camille.roux@example.test,FR
+C004,Nora Bernard,nora.bernard@example.test,FR
+C005,Hugo Petit,hugo.petit@example.test,FR
+C006,Lea Moreau,lea.moreau@example.test,FR
+C007,Louis Fournier,louis.fournier@example.test,FR
+C008,Emma Girard,emma.girard@example.test,FR
+C009,Theo Andre,theo.andre@example.test,FR
+C010,Ines Mercier,ines.mercier@example.test,FR
+C011,Jules Dupont,jules.dupont@example.test,FR
+C012,Chloe Lambert,chloe.lambert@example.test,FR
+C013,Noah Bonnet,noah.bonnet@example.test,FR
+C014,Lina Francois,lina.francois@example.test,FR
+C015,Adam Fontaine,adam.fontaine@example.test,FR
+C016,Eva Robin,eva.robin@example.test,FR
+C017,Leo Clement,leo.clement@example.test,FR
+C018,Maya Gauthier,maya.gauthier@example.test,FR
+C019,Sami Perrin,sami.perrin@example.test,FR
+C020,Mila Durant,mila.durant@example.test,FR
+C021,Mila Durand,mila.durand@example.test,FR
+C022,Anna Renard,anna.renard@example.test,FR
+C023,Paul Marchand,paul.marchand@example.test,FR
+C024,Sara Blanchard,sara.blanchard@example.test,FR

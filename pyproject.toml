@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
 authors = [{ name = "DataForge contributors" }]
-dependencies = []
+dependencies = ["openpyxl>=3.1,<4"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8,<9"]

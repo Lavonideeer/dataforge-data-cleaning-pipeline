@@ -1,0 +1,1878 @@
+{
+  "cases": [
+    {
+      "case_id": "A_VALID",
+      "description": "Clean valid transaction.",
+      "expected_codes": [],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [],
+      "interaction_case": "A",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0001",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 2,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "B_FORMATTING",
+      "description": "Recoverable formatting only; normalize, audit, accept.",
+      "expected_codes": [
+        "NORMALIZE_IDENTIFIER",
+        "NORMALIZE_DATE",
+        "NORMALIZE_CURRENCY",
+        "NORMALIZE_COUNTRY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0002",
+          "values": {
+            "country": "FR",
+            "customer_id": "C002",
+            "order_date": "2026-07-02",
+            "order_id": "ORD-0002",
+            "product_id": "P012",
+            "quantity": 2,
+            "unit_price_eur": "1299.00"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "identifier_case_whitespace",
+        "date_format",
+        "currency_locale",
+        "country_alias"
+      ],
+      "interaction_case": "B",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0002",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 3,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "C_INVALID_QUANTITY",
+      "description": "Zero quantity; quarantine.",
+      "expected_codes": [
+        "INVALID_QUANTITY"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "quantity_nonpositive"
+      ],
+      "interaction_case": "C",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0003",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 4,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "D_EXACT_DUPLICATE",
+      "description": "Exact valid duplicate; first survives, copy deduplicates.",
+      "expected_codes": [
+        "DUPLICATE_EXACT"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "ACCEPTED",
+        "DEDUPLICATED"
+      ],
+      "injected_defects": [
+        "exact_row_duplicate"
+      ],
+      "interaction_case": "D",
+      "relationships": [
+        {
+          "fixture_id": "TX-D-DUP",
+          "related_fixture_id": "TX-0004"
+        }
+      ],
+      "source_records": [
+        {
+          "fixture_id": "TX-0004",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 5,
+          "source_sheet": ""
+        },
+        {
+          "fixture_id": "TX-D-DUP",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 42,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "E_CONFLICTING_ORDER_ID",
+      "description": "Conflicting valid order key; quarantine every member.",
+      "expected_codes": [
+        "DUPLICATE_KEY_CONFLICT"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED",
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "duplicate_key_conflict"
+      ],
+      "interaction_case": "E",
+      "relationships": [
+        {
+          "fixture_id": "TX-E-CONFLICT",
+          "related_fixture_id": "TX-0005"
+        }
+      ],
+      "source_records": [
+        {
+          "fixture_id": "TX-0005",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 6,
+          "source_sheet": ""
+        },
+        {
+          "fixture_id": "TX-E-CONFLICT",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 43,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "F_HARD_INVALID_BEFORE_DUPLICATE",
+      "description": "Hard-invalid row quarantines before same-key duplicate accounting.",
+      "expected_codes": [
+        "INVALID_QUANTITY"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED",
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "quantity_nonpositive",
+        "duplicate_like_after_hard_failure"
+      ],
+      "interaction_case": "F",
+      "relationships": [
+        {
+          "fixture_id": "TX-F-VALID",
+          "related_fixture_id": "TX-0006"
+        }
+      ],
+      "source_records": [
+        {
+          "fixture_id": "TX-0006",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 7,
+          "source_sheet": ""
+        },
+        {
+          "fixture_id": "TX-F-VALID",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 44,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "G_FUZZY_CUSTOMER",
+      "description": "Similar customer names are flagged and never merged.",
+      "expected_codes": [
+        "FUZZY_CUSTOMER_CANDIDATE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "ACCEPTED",
+        "REFERENCE_VALID",
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [],
+      "interaction_case": "G",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0007",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 8,
+          "source_sheet": ""
+        },
+        {
+          "fixture_id": "CUSTOMER-020",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 21,
+          "source_sheet": "customers"
+        },
+        {
+          "fixture_id": "CUSTOMER-021",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 22,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "H_UNKNOWN_CUSTOMER",
+      "description": "Unknown customer reference; quarantine transaction.",
+      "expected_codes": [
+        "UNKNOWN_CUSTOMER_REFERENCE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "unknown_customer_reference"
+      ],
+      "interaction_case": "H",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0008",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 9,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "H_UNKNOWN_PRODUCT",
+      "description": "Unknown product reference; quarantine transaction.",
+      "expected_codes": [
+        "UNKNOWN_PRODUCT_REFERENCE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "unknown_product_reference"
+      ],
+      "interaction_case": "H",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0009",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 10,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "I_FUTURE_DATE",
+      "description": "Date after frozen clock; quarantine.",
+      "expected_codes": [
+        "FUTURE_ORDER_DATE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "future_date"
+      ],
+      "interaction_case": "I",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0121",
+          "record_type": "sales",
+          "source_file": "sales_2026_10.xlsx",
+          "source_row": 2,
+          "source_sheet": "sales"
+        }
+      ]
+    },
+    {
+      "case_id": "J_MULTIPLE_HARD_FAILURES",
+      "description": "One quarantine disposition with all hard failures evidenced.",
+      "expected_codes": [
+        "MISSING_CUSTOMER_ID",
+        "FUTURE_ORDER_DATE",
+        "INVALID_QUANTITY"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "missing_critical_identifier",
+        "future_date",
+        "quantity_nonpositive"
+      ],
+      "interaction_case": "J",
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0122",
+          "record_type": "sales",
+          "source_file": "sales_2026_10.xlsx",
+          "source_row": 3,
+          "source_sheet": "sales"
+        }
+      ]
+    },
+    {
+      "case_id": "DATE_IMPOSSIBLE",
+      "description": "Impossible calendar date.",
+      "expected_codes": [
+        "INVALID_ORDER_DATE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "impossible_date"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0012",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 13,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CURRENCY_NEGATIVE",
+      "description": "Negative transaction price.",
+      "expected_codes": [
+        "INVALID_UNIT_PRICE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "negative_unit_price"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0013",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 14,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CURRENCY_AMBIGUOUS",
+      "description": "Ambiguous currency separator.",
+      "expected_codes": [
+        "INVALID_UNIT_PRICE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "ambiguous_currency"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0014",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 15,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "MISSING_PRODUCT_ID",
+      "description": "Missing critical product identifier.",
+      "expected_codes": [
+        "MISSING_PRODUCT_ID"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "missing_critical_identifier"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0015",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 16,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "OPTIONAL_COUNTRY_MISSING",
+      "description": "Optional country is null and retained.",
+      "expected_codes": [],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0016",
+          "values": {
+            "country": null
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "missing_optional_field"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0016",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 17,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "COUNTRY_FRANCE",
+      "description": "Country alias France.",
+      "expected_codes": [
+        "NORMALIZE_COUNTRY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0017",
+          "values": {
+            "country": "FR"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "country_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0017",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 18,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "COUNTRY_FRANCE_LOWER",
+      "description": "Country alias france.",
+      "expected_codes": [
+        "NORMALIZE_COUNTRY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0018",
+          "values": {
+            "country": "FR"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "country_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0018",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 19,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "COUNTRY_FR",
+      "description": "Canonical country FR.",
+      "expected_codes": [],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0019",
+          "values": {
+            "country": "FR"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0019",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 20,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "COUNTRY_FRA",
+      "description": "Country alias FRA.",
+      "expected_codes": [
+        "NORMALIZE_COUNTRY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0020",
+          "values": {
+            "country": "FR"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "country_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0020",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 21,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "COUNTRY_UNKNOWN",
+      "description": "Unknown country retained and flagged.",
+      "expected_codes": [
+        "UNKNOWN_COUNTRY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0021",
+          "values": {
+            "country": "Atlantis"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "unknown_country"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0021",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 22,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "DATE_ISO",
+      "description": "ISO date form.",
+      "expected_codes": [],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0022",
+          "values": {
+            "order_date": "2026-07-22"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0022",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 23,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "DATE_DDMMYYYY",
+      "description": "Day-first numeric date form.",
+      "expected_codes": [
+        "NORMALIZE_DATE"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0023",
+          "values": {
+            "order_date": "2026-07-23"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "date_format"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0023",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 24,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "DATE_TEXTUAL",
+      "description": "Bounded English textual date form.",
+      "expected_codes": [
+        "NORMALIZE_DATE"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0024",
+          "values": {
+            "order_date": "2026-07-24"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "date_format"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0024",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 25,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CURRENCY_EU",
+      "description": "European grouped EUR form.",
+      "expected_codes": [
+        "NORMALIZE_CURRENCY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0025",
+          "values": {
+            "unit_price_eur": "1299.00"
+          }
+        },
+        {
+          "fixture_id": "PRODUCT-012",
+          "values": {
+            "unit_price_eur": "1299.00"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED",
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "currency_locale"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0025",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 26,
+          "source_sheet": ""
+        },
+        {
+          "fixture_id": "PRODUCT-012",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 13,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CURRENCY_US",
+      "description": "US grouped EUR form.",
+      "expected_codes": [
+        "NORMALIZE_CURRENCY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0026",
+          "values": {
+            "unit_price_eur": "1299.00"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "currency_locale"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0026",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 27,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CURRENCY_PLAIN",
+      "description": "Plain integer EUR form.",
+      "expected_codes": [
+        "NORMALIZE_CURRENCY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0027",
+          "values": {
+            "unit_price_eur": "1299.00"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "currency_locale"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0027",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 28,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "TEXT_HYGIENE",
+      "description": "Identifier whitespace and case normalization.",
+      "expected_codes": [
+        "NORMALIZE_IDENTIFIER"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-0028",
+          "values": {
+            "customer_id": "C008",
+            "order_id": "ORD-0028",
+            "product_id": "P008"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED"
+      ],
+      "injected_defects": [
+        "identifier_case_whitespace"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0028",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 29,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "MISSING_ORDER_ID",
+      "description": "Missing critical order identifier.",
+      "expected_codes": [
+        "MISSING_ORDER_ID"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "missing_critical_identifier"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0029",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 30,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "NORMALIZED_DUPLICATE",
+      "description": "Different raw forms normalize to one legal duplicate.",
+      "expected_codes": [
+        "NORMALIZE_IDENTIFIER",
+        "NORMALIZE_DATE",
+        "NORMALIZE_CURRENCY",
+        "NORMALIZE_COUNTRY",
+        "DUPLICATE_EXACT"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "TX-NORMALIZED-DUP",
+          "values": {
+            "country": "FR",
+            "customer_id": "C010",
+            "order_date": "2026-07-28",
+            "order_id": "ORD-0030",
+            "product_id": "P012",
+            "quantity": 1,
+            "unit_price_eur": "1299.00"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "ACCEPTED",
+        "DEDUPLICATED"
+      ],
+      "injected_defects": [
+        "semantic_duplicate_after_normalization"
+      ],
+      "interaction_case": null,
+      "relationships": [
+        {
+          "fixture_id": "TX-NORMALIZED-DUP",
+          "related_fixture_id": "TX-0030"
+        }
+      ],
+      "source_records": [
+        {
+          "fixture_id": "TX-0030",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 31,
+          "source_sheet": ""
+        },
+        {
+          "fixture_id": "TX-NORMALIZED-DUP",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 45,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "INVALID_IDENTIFIER",
+      "description": "Identifier outside the bounded pattern.",
+      "expected_codes": [
+        "INVALID_IDENTIFIER"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "invalid_identifier"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0031",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 32,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "FRACTIONAL_QUANTITY",
+      "description": "Fractional quantity violates integer rule.",
+      "expected_codes": [
+        "INVALID_QUANTITY"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "fractional_quantity"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0032",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 33,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "MISSING_UNIT_PRICE",
+      "description": "Missing critical transaction price.",
+      "expected_codes": [
+        "INVALID_UNIT_PRICE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "QUARANTINED"
+      ],
+      "injected_defects": [
+        "missing_unit_price"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "TX-0035",
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_row": 36,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CUSTOMER_TEXT_HYGIENE",
+      "description": "Customer name whitespace normalization.",
+      "expected_codes": [
+        "NORMALIZE_WHITESPACE",
+        "NORMALIZE_COUNTRY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "CUSTOMER-002",
+          "values": {
+            "country": "FR",
+            "customer_name": "Bruno Leroy"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "text_whitespace",
+        "country_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "CUSTOMER-002",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 3,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "EMAIL_HYGIENE",
+      "description": "Recoverable email trim/domain-case normalization.",
+      "expected_codes": [
+        "NORMALIZE_EMAIL",
+        "NORMALIZE_COUNTRY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "CUSTOMER-003",
+          "values": {
+            "country": "FR",
+            "email": "camille.roux@example.test"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "email_hygiene",
+        "country_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "CUSTOMER-003",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 4,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "EMAIL_MALFORMED",
+      "description": "Malformed customer email retained and flagged.",
+      "expected_codes": [
+        "INVALID_EMAIL_FORMAT"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "malformed_email"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "CUSTOMER-004",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 5,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "CUSTOMER_OPTIONAL_NAME_MISSING",
+      "description": "Optional customer name is null.",
+      "expected_codes": [],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "missing_optional_field"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "CUSTOMER-005",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 6,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "CUSTOMER_COUNTRY_UNKNOWN",
+      "description": "Unknown customer country retained and flagged.",
+      "expected_codes": [
+        "UNKNOWN_COUNTRY"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "unknown_country"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "CUSTOMER-006",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 7,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "CUSTOMER_REFERENCE_MISSING_ID",
+      "description": "Customer reference missing critical key.",
+      "expected_codes": [
+        "MISSING_CUSTOMER_ID"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_REJECTED"
+      ],
+      "injected_defects": [
+        "missing_critical_identifier"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "CUSTOMER-MISSING-ID",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 26,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "CUSTOMER_REFERENCE_DUPLICATE",
+      "description": "Exact customer reference duplicate.",
+      "expected_codes": [
+        "REFERENCE_DUPLICATE_EXACT"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_DEDUPLICATED"
+      ],
+      "injected_defects": [
+        "exact_reference_duplicate"
+      ],
+      "interaction_case": null,
+      "relationships": [
+        {
+          "fixture_id": "CUSTOMER-EXACT-DUP",
+          "related_fixture_id": "CUSTOMER-010"
+        }
+      ],
+      "source_records": [
+        {
+          "fixture_id": "CUSTOMER-EXACT-DUP",
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_row": 27,
+          "source_sheet": "customers"
+        }
+      ]
+    },
+    {
+      "case_id": "CATEGORY_TECH",
+      "description": "Tech category alias.",
+      "expected_codes": [
+        "NORMALIZE_CATEGORY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "PRODUCT-001",
+          "values": {
+            "category": "ELECTRONICS"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "category_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-001",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 2,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CATEGORY_HOME_LIVING",
+      "description": "Home & Living category alias.",
+      "expected_codes": [
+        "NORMALIZE_CATEGORY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "PRODUCT-003",
+          "values": {
+            "category": "HOME"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "category_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-003",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 4,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CATEGORY_OFFICE_SUPPLIES",
+      "description": "Office Supplies category alias.",
+      "expected_codes": [
+        "NORMALIZE_CATEGORY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "PRODUCT-004",
+          "values": {
+            "category": "OFFICE"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "category_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-004",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 5,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CATEGORY_CLOTHING",
+      "description": "Clothing category alias.",
+      "expected_codes": [
+        "NORMALIZE_CATEGORY"
+      ],
+      "expected_normalization": [
+        {
+          "fixture_id": "PRODUCT-005",
+          "values": {
+            "category": "APPAREL"
+          }
+        }
+      ],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "category_alias"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-005",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 6,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "CATEGORY_UNKNOWN",
+      "description": "Unknown category retained and flagged.",
+      "expected_codes": [
+        "UNKNOWN_CATEGORY"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "unknown_category"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-006",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 7,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "PRODUCT_OPTIONAL_NAME_MISSING",
+      "description": "Optional product name is null.",
+      "expected_codes": [],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_VALID"
+      ],
+      "injected_defects": [
+        "missing_optional_field"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-007",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 8,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "PRODUCT_REFERENCE_MISSING_ID",
+      "description": "Product reference missing critical key.",
+      "expected_codes": [
+        "MISSING_PRODUCT_ID"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_REJECTED"
+      ],
+      "injected_defects": [
+        "missing_critical_identifier"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-MISSING-ID",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 14,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "PRODUCT_REFERENCE_INVALID_PRICE",
+      "description": "Product reference has negative price.",
+      "expected_codes": [
+        "INVALID_UNIT_PRICE"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_REJECTED"
+      ],
+      "injected_defects": [
+        "negative_unit_price"
+      ],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-INVALID-PRICE",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 15,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "PRODUCT_REFERENCE_DUPLICATE",
+      "description": "Exact product reference duplicate.",
+      "expected_codes": [
+        "REFERENCE_DUPLICATE_EXACT"
+      ],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [
+        "REFERENCE_DEDUPLICATED"
+      ],
+      "injected_defects": [
+        "exact_reference_duplicate"
+      ],
+      "interaction_case": null,
+      "relationships": [
+        {
+          "fixture_id": "PRODUCT-EXACT-DUP",
+          "related_fixture_id": "PRODUCT-010"
+        }
+      ],
+      "source_records": [
+        {
+          "fixture_id": "PRODUCT-EXACT-DUP",
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_row": 16,
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "SCHEMA_ALIASES",
+      "description": "Documented bounded header aliases across monthly files.",
+      "expected_codes": [],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [],
+      "injected_defects": [],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "headers": [
+            "Order ID",
+            "Customer ID",
+            "Product ID",
+            "Order Date",
+            "Quantity",
+            "Unit Price",
+            "Country",
+            "sales_channel"
+          ],
+          "record_type": "sales",
+          "source_file": "sales_2026_07.csv",
+          "source_sheet": ""
+        },
+        {
+          "headers": [
+            "OrderID",
+            "CustomerID",
+            "ProductID",
+            "Date",
+            "Qty",
+            "Price EUR",
+            "Country Code",
+            "legacy_note"
+          ],
+          "record_type": "sales",
+          "source_file": "sales_2026_08.xlsx",
+          "source_sheet": "sales"
+        },
+        {
+          "headers": [
+            "order id",
+            "customer_id",
+            "product id",
+            "order date",
+            "quantity",
+            "unit price",
+            "country code",
+            "campaign"
+          ],
+          "record_type": "sales",
+          "source_file": "sales_2026_09.csv",
+          "source_sheet": ""
+        },
+        {
+          "headers": [
+            "order_id",
+            "customer id",
+            "product_id",
+            "order_date",
+            "quantity",
+            "unit_price_eur",
+            "country",
+            "review_note"
+          ],
+          "record_type": "sales",
+          "source_file": "sales_2026_10.xlsx",
+          "source_sheet": "sales"
+        },
+        {
+          "headers": [
+            "Customer ID",
+            "Customer Name",
+            "Email Address",
+            "Country Code",
+            "legacy_segment"
+          ],
+          "record_type": "customers",
+          "source_file": "customers.xlsx",
+          "source_sheet": "customers"
+        },
+        {
+          "headers": [
+            "SKU",
+            "Product Name",
+            "Product Category",
+            "Price EUR",
+            "supplier_note"
+          ],
+          "record_type": "products",
+          "source_file": "products.csv",
+          "source_sheet": ""
+        }
+      ]
+    },
+    {
+      "case_id": "SCHEMA_UNEXPECTED_COLUMNS",
+      "description": "Unexpected columns are present for reporting.",
+      "expected_codes": [],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [],
+      "injected_defects": [],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "source_file": "sales_2026_07.csv",
+          "unexpected_header": "sales_channel"
+        },
+        {
+          "source_file": "sales_2026_08.xlsx",
+          "unexpected_header": "legacy_note"
+        },
+        {
+          "source_file": "sales_2026_09.csv",
+          "unexpected_header": "campaign"
+        },
+        {
+          "source_file": "sales_2026_10.xlsx",
+          "unexpected_header": "review_note"
+        }
+      ]
+    },
+    {
+      "case_id": "SCHEMA_UNEXPECTED_SHEET",
+      "description": "One workbook contains an unselected notes sheet.",
+      "expected_codes": [],
+      "expected_normalization": [],
+      "expected_terminal_dispositions": [],
+      "injected_defects": [],
+      "interaction_case": null,
+      "relationships": [],
+      "source_records": [
+        {
+          "source_file": "sales_2026_08.xlsx",
+          "source_sheet": "notes"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "customers_ground_truth": 24,
+    "customers_input": 26,
+    "products_ground_truth": 12,
+    "products_input": 15,
+    "transaction_expected": {
+      "accepted": 146,
+      "deduplicated": 2,
+      "quarantined": 16
+    },
+    "transaction_ground_truth": 160,
+    "transaction_input": 164
+  },
+  "coverage": {
+    "business.invalid_identifier": [
+      "INVALID_IDENTIFIER"
+    ],
+    "business.negative_price": [
+      "CURRENCY_NEGATIVE",
+      "PRODUCT_REFERENCE_INVALID_PRICE"
+    ],
+    "business.quantity_fractional": [
+      "FRACTIONAL_QUANTITY"
+    ],
+    "business.quantity_nonpositive": [
+      "C_INVALID_QUANTITY",
+      "F_HARD_INVALID_BEFORE_DUPLICATE",
+      "J_MULTIPLE_HARD_FAILURES"
+    ],
+    "categories.aliases": [
+      "CATEGORY_TECH",
+      "CATEGORY_HOME_LIVING",
+      "CATEGORY_OFFICE_SUPPLIES",
+      "CATEGORY_CLOTHING"
+    ],
+    "categories.unknown": [
+      "CATEGORY_UNKNOWN"
+    ],
+    "country.aliases": [
+      "COUNTRY_FRANCE",
+      "COUNTRY_FRANCE_LOWER",
+      "COUNTRY_FR",
+      "COUNTRY_FRA"
+    ],
+    "country.unknown": [
+      "COUNTRY_UNKNOWN",
+      "CUSTOMER_COUNTRY_UNKNOWN"
+    ],
+    "dates.ddmmyyyy": [
+      "B_FORMATTING",
+      "DATE_DDMMYYYY"
+    ],
+    "dates.future": [
+      "I_FUTURE_DATE",
+      "J_MULTIPLE_HARD_FAILURES"
+    ],
+    "dates.impossible": [
+      "DATE_IMPOSSIBLE"
+    ],
+    "dates.iso": [
+      "DATE_ISO"
+    ],
+    "dates.textual": [
+      "DATE_TEXTUAL"
+    ],
+    "duplicates.conflicting_business_key": [
+      "E_CONFLICTING_ORDER_ID"
+    ],
+    "duplicates.exact_row": [
+      "D_EXACT_DUPLICATE"
+    ],
+    "duplicates.fuzzy_customer": [
+      "G_FUZZY_CUSTOMER"
+    ],
+    "duplicates.normalized_business_key": [
+      "NORMALIZED_DUPLICATE"
+    ],
+    "email.hygiene": [
+      "EMAIL_HYGIENE"
+    ],
+    "email.malformed": [
+      "EMAIL_MALFORMED"
+    ],
+    "failures.multiple": [
+      "J_MULTIPLE_HARD_FAILURES"
+    ],
+    "locale.currency_formats": [
+      "B_FORMATTING",
+      "CURRENCY_EU",
+      "CURRENCY_US",
+      "CURRENCY_PLAIN"
+    ],
+    "locale.currency_invalid": [
+      "CURRENCY_NEGATIVE",
+      "CURRENCY_AMBIGUOUS",
+      "MISSING_UNIT_PRICE"
+    ],
+    "missingness.critical_identifier": [
+      "MISSING_ORDER_ID",
+      "MISSING_PRODUCT_ID",
+      "J_MULTIPLE_HARD_FAILURES",
+      "CUSTOMER_REFERENCE_MISSING_ID",
+      "PRODUCT_REFERENCE_MISSING_ID"
+    ],
+    "missingness.optional_field": [
+      "OPTIONAL_COUNTRY_MISSING",
+      "CUSTOMER_OPTIONAL_NAME_MISSING",
+      "PRODUCT_OPTIONAL_NAME_MISSING"
+    ],
+    "precedence.hard_before_duplicate": [
+      "F_HARD_INVALID_BEFORE_DUPLICATE"
+    ],
+    "references.exact_duplicate": [
+      "CUSTOMER_REFERENCE_DUPLICATE",
+      "PRODUCT_REFERENCE_DUPLICATE"
+    ],
+    "references.unknown_customer": [
+      "H_UNKNOWN_CUSTOMER"
+    ],
+    "references.unknown_product": [
+      "H_UNKNOWN_PRODUCT"
+    ],
+    "references.valid": [
+      "A_VALID"
+    ],
+    "schema.documented_aliases": [
+      "SCHEMA_ALIASES"
+    ],
+    "schema.unexpected_columns": [
+      "SCHEMA_UNEXPECTED_COLUMNS"
+    ],
+    "schema.unexpected_sheet": [
+      "SCHEMA_UNEXPECTED_SHEET"
+    ],
+    "text.case": [
+      "B_FORMATTING",
+      "TEXT_HYGIENE",
+      "EMAIL_HYGIENE"
+    ],
+    "text.whitespace": [
+      "B_FORMATTING",
+      "TEXT_HYGIENE",
+      "CUSTOMER_TEXT_HYGIENE"
+    ]
+  },
+  "dataset": {
+    "contains_real_customer_data": false,
+    "demo_date": "2026-10-07",
+    "determinism": {
+      "csv_json": "byte-equivalent",
+      "xlsx": "semantic record-equivalent; container bytes are not asserted"
+    },
+    "name": "DataForge deterministic synthetic e-commerce demo",
+    "seed": 1007,
+    "synthetic": true,
+    "timezone": "Europe/Paris"
+  },
+  "files": [
+    {
+      "comparison": "byte",
+      "format": "csv",
+      "path": "data/demo_raw/sales_2026_07.csv",
+      "record_type": "sales",
+      "row_count": 44,
+      "selected_sheets": [],
+      "sha256": "3b37ba5b96e9a7cfaf9f667291fa41708af07649748dae51a4bba388e79b21bc"
+    },
+    {
+      "comparison": "semantic",
+      "format": "xlsx",
+      "path": "data/demo_raw/sales_2026_08.xlsx",
+      "record_type": "sales",
+      "row_count": 40,
+      "selected_sheets": [
+        "sales"
+      ],
+      "semantic_sha256": "cb967857d1d81c73d47f04144e4288f9a53db5d253575c5e825f50151c695796"
+    },
+    {
+      "comparison": "byte",
+      "format": "csv",
+      "path": "data/demo_raw/sales_2026_09.csv",
+      "record_type": "sales",
+      "row_count": 40,
+      "selected_sheets": [],
+      "sha256": "628437598f585e3047758d05a1d9766aca3ceb1d80d53e3c87b76aa41b19dec9"
+    },
+    {
+      "comparison": "semantic",
+      "format": "xlsx",
+      "path": "data/demo_raw/sales_2026_10.xlsx",
+      "record_type": "sales",
+      "row_count": 40,
+      "selected_sheets": [
+        "sales"
+      ],
+      "semantic_sha256": "5beb4cb66480af793ed7c09d1d51ffe50fe6c42791da2866ba9c94725b85e199"
+    },
+    {
+      "comparison": "semantic",
+      "format": "xlsx",
+      "path": "data/demo_raw/customers.xlsx",
+      "record_type": "customers",
+      "row_count": 26,
+      "selected_sheets": [
+        "customers"
+      ],
+      "semantic_sha256": "ab21ebf68ef17a35f044377085d2eb63c0d8cac26ea2507ab85beefce900e46e"
+    },
+    {
+      "comparison": "byte",
+      "format": "csv",
+      "path": "data/demo_raw/products.csv",
+      "record_type": "products",
+      "row_count": 15,
+      "selected_sheets": [],
+      "sha256": "4166dcb1437cd2d66ff420818a9201d0ef722f455ef007cdbe832bd2db147c86"
+    },
+    {
+      "comparison": "byte",
+      "format": "csv",
+      "path": "data/demo_expected/ground_truth_sales.csv",
+      "record_type": "expected_fixture",
+      "sha256": "5943182a1f1dec5002f5a9553abbfb0b78245d5b7d70d27ca5babdab74a87ebe"
+    },
+    {
+      "comparison": "byte",
+      "format": "csv",
+      "path": "data/demo_expected/ground_truth_customers.csv",
+      "record_type": "expected_fixture",
+      "sha256": "5bd201404ef91d0c1479a01df8b8fb4eee586ef6c021217e94247f21f163a23a"
+    },
+    {
+      "comparison": "byte",
+      "format": "csv",
+      "path": "data/demo_expected/ground_truth_products.csv",
+      "record_type": "expected_fixture",
+      "sha256": "d58f28d337c6725430a7ce22f64f77ae6a0415a700e442a8f7c63b0788f2b5aa"
+    },
+    {
+      "comparison": "byte",
+      "format": "csv",
+      "path": "data/demo_expected/expected_transactions.csv",
+      "record_type": "expected_fixture",
+      "sha256": "52284e130625ff2d7640a7a096e77a3669bbba266baaeb199c2f9e7c8a79e884"
+    }
+  ],
+  "g2_expected": {
+    "accepted_rows": 146,
+    "deduplicated_rows": 2,
+    "input_transaction_rows": 164,
+    "quarantined_rows": 16,
+    "reconciled": true
+  },
+  "specification_version": "1.0.1"
+}

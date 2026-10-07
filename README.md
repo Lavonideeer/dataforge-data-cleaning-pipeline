@@ -15,8 +15,8 @@ The authoritative v1.0 PDF has been recovered and recorded in
 clarification is [`docs/NORMATIVE_APPENDIX_v1.0.1.md`](docs/NORMATIVE_APPENDIX_v1.0.1.md).
 Together they provide the frozen authority for future implementation.
 
-DF-000 is closed. No DF-001 through DF-008 work has been performed, and DF-001
-still requires separate Owner authorization.
+DF-000 is closed. DF-001 supplies the deterministic synthetic demo corpus. No
+DF-002 through DF-008 implementation has been performed or authorized.
 
 ## Authority
 
@@ -36,7 +36,30 @@ The frozen specification reserves this interface for DF-006:
 python -m dataforge.cli --input data/demo_raw --output examples/output
 ```
 
-It is intentionally not implemented during DF-000.
+It remains reserved for the later CLI phase and is not implemented by DF-001.
+
+## Synthetic demo data
+
+DF-001 generates 164 synthetic transaction rows across four monthly files (two
+CSV and two XLSX), plus customer and product references. Every dirty record is a
+controlled transformation of canonical ground truth.
+
+```bash
+python scripts/generate_demo_data.py
+```
+
+- Fixed seed: `1007`
+- Frozen clock: `2026-10-07`, `Europe/Paris`
+- `data/demo_raw/`: publishable messy inputs
+- `data/demo_expected/ground_truth_*.csv`: canonical source-of-truth records
+- `data/demo_expected/expected_transactions.csv`: one expected terminal outcome
+  per transaction source row
+- `data/demo_expected/expected_outcomes.json`: cases, coverage, relationships,
+  counts, and reproducibility metadata
+
+CSV and JSON artifacts are byte-deterministic. XLSX ZIP containers are verified
+by semantic workbook content because container bytes may vary while records do
+not. All identities, emails, orders, and products are synthetic.
 
 ## Repository layout
 

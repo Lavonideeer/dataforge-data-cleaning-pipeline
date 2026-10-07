@@ -1,0 +1,16 @@
+SKU,Product Name,Product Category,Price EUR,supplier_note
+P001,Laptop Stand,Tech,49.90,synthetic
+P002,Wireless Mouse,ELECTRONICS,29.95,synthetic
+P003,Desk Lamp,Home & Living,39.50,synthetic
+P004,Notebook Set,office supplies,12.00,synthetic
+P005,Cotton T-Shirt,Clothing,24.99,synthetic
+P006,Monitor,Gadgets,299.00,synthetic
+P007,,HOME,18.50,synthetic
+P008,Fountain Pen,OFFICE,15.75,synthetic
+P009,Hoodie,APPAREL,59.00,synthetic
+P010,Headphones,ELECTRONICS,79.99,synthetic
+P011,Coffee Maker,HOME,129.90,synthetic
+P012,Office Chair,OFFICE,"1 299,00 EUR",synthetic
+,Synthetic Missing SKU,OFFICE,10.00,synthetic
+P013,Synthetic Invalid Price,OFFICE,-3.00,synthetic
+P010,Headphones,ELECTRONICS,79.99,synthetic

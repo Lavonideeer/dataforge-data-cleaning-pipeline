@@ -1,0 +1,13 @@
+product_id,product_name,category,unit_price_eur
+P001,Laptop Stand,ELECTRONICS,49.90
+P002,Wireless Mouse,ELECTRONICS,29.95
+P003,Desk Lamp,HOME,39.50
+P004,Notebook Set,OFFICE,12.00
+P005,Cotton T-Shirt,APPAREL,24.99
+P006,Monitor,ELECTRONICS,299.00
+P007,Storage Box,HOME,18.50
+P008,Fountain Pen,OFFICE,15.75
+P009,Hoodie,APPAREL,59.00
+P010,Headphones,ELECTRONICS,79.99
+P011,Coffee Maker,HOME,129.90
+P012,Office Chair,OFFICE,1299.00
