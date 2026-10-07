@@ -13,11 +13,12 @@
 | Specification version | v1.0 plus adopted v1.0.1 normative clarification |
 | PDF pages reviewed | 6 of 6 |
 | Bootstrap date | 2026-10-07 |
-| Current authorized phase | DF-001 deterministic demo data only |
+| Current authorized phase | DF-002 ingestion and schema only |
 | DF-000 decision | PASS after adopted clarification and closure review |
 | Appendix status | ADOPTED on 2026-10-07 |
 | DF-000R source commit | `389c7a3` |
 | DF-001 corpus | Seed `1007`; frozen clock `2026-10-07`, `Europe/Paris` |
+| DF-002 boundary | Deterministic CSV/XLSX discovery, selected-sheet ingestion, provenance, aliases, and structural diagnostics |
 
 ## Authority model
 
